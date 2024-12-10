@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.healthcaremonitoringapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.healthcaremonitoringapp"
@@ -33,6 +33,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "1.8"
@@ -69,5 +70,5 @@ dependencies {
 
     //Okhttp
     implementation(libs.okhttp)
-    implementation(libs.viewbinding)
+    coreLibraryDesugaring(libs.core.library.desugaring)
 }

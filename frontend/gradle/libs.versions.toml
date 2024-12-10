@@ -14,8 +14,8 @@ socketioClient = "2.0.0"
 jwtDecoder = "3.18.2"
 lifecycle = "2.5.1"
 coroutines = "1.6.4"
-okhttp = "4.10.0"
-viewbinding = "7.4.2"
+okhttp = "4.12.0"
+desugar = "1.1.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -35,7 +35,7 @@ lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-lived
 lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
-viewbinding = { group = "androidx.viewbinding", name = "viewbinding", version.ref = "viewbinding" }
+core-library-desugaring = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
