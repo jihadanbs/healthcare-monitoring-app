@@ -3,6 +3,7 @@ const cors = require('cors');
 const connectDB = require('./src/config/database');
 const authRoutes = require('./src/routes/authRoutes');
 const medicationRoutes = require('./src/routes/medicationRoutes');
+const patientRoutes = require('./src/routes/patientRoutes');
 
 // Inisialisasi Express
 const app = express();
@@ -16,6 +17,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/patient', patientRoutes);
 app.use('/api/medications', medicationRoutes);
 
 // Port
