@@ -3,8 +3,6 @@ const cors = require('cors');
 const connectDB = require('./src/config/database');
 const authRoutes = require('./src/routes/authRoutes');
 const dashboardPatientRoutes = require('./src/routes/dashboardPatientRoutes');
-const medicationRoutes = require('./src/routes/medicationRoutes');
-const patientRoutes = require('./src/routes/patientRoutes');
 
 // Inisialisasi Express
 const app = express();
