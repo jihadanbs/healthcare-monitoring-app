@@ -9,6 +9,7 @@ router.get('/dashboard', authMiddleware, dashboardController.getDashboardData);
 // Route untuk menambahkan obat ke daftar
 router.post('/medicines', authMiddleware, dashboardController.addMedicine);
 
+// Route untuk mendapatkan daftar obat 
 router.get('/medicines/prescribed', authMiddleware, dashboardController.getPrescribedMedicines);
 
 // Route untuk memperbarui status pembelian obat
