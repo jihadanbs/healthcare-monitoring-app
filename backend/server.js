@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./src/config/database');
 const authRoutes = require('./src/routes/authRoutes');
+const dashboardPatientRoutes = require('./src/routes/dashboardPatientRoutes');
 const medicationRoutes = require('./src/routes/medicationRoutes');
 const patientRoutes = require('./src/routes/patientRoutes');
 
@@ -17,6 +18,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/dashboard', dashboardPatientRoutes);
 app.use('/api/patient', patientRoutes);
 app.use('/api/medications', medicationRoutes);
 

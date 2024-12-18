@@ -1,68 +1,72 @@
 package com.example.healthcaremonitoringapp.ui.patient
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.healthcaremonitoringapp.models.Appointment
-import com.example.healthcaremonitoringapp.models.Medicine
-import com.example.healthcaremonitoringapp.models.Notification
-import com.example.healthcaremonitoringapp.network.DashboardRepository
-import kotlinx.coroutines.launch
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.healthcaremonitoringapp.R
+import com.example.healthcaremonitoringapp.viewmodels.DashboardPatientViewModel
 
-class DashboardViewModel : ViewModel() {
-    private val repository = DashboardRepository()
+class DashboardActivity : AppCompatActivity() {
+    private lateinit var viewModel: DashboardPatientViewModel
+    private lateinit var medicineListAdapter: MedicineListAdapter
+    private lateinit var appointmentRecyclerView: RecyclerView
+    private lateinit var medicineRecyclerView: RecyclerView
 
-    private val _healthSummary = MutableLiveData<String>()
-    val healthSummary: LiveData<String> = _healthSummary
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_patient_dashboard)
 
-    private val _upcomingAppointments = MutableLiveData<List<Appointment>>()
-    val upcomingAppointments: LiveData<List<Appointment>> = _upcomingAppointments
+        // Initialize ViewModel
+        viewModel = ViewModelProvider(this).get(DashboardPatientViewModel::class.java)
 
-    private val _prescribedMedicines = MutableLiveData<List<Medicine>>()
-    val prescribedMedicines: LiveData<List<Medicine>> = _prescribedMedicines
+        // Setup RecyclerViews
+        appointmentRecyclerView = findViewById(R.id.appointmentRecyclerView)
+        medicineRecyclerView = findViewById(R.id.medicineRecyclerView)
 
-    private val _notifications = MutableLiveData<List<Notification>>()
-    val notifications: LiveData<List<Notification>> = _notifications
+        // Setup Adapters
+        setupAppointmentList()
+        setupMedicineList()
 
-    init {
-        fetchDashboardData()
+        // Observe LiveData
+        observeDashboardData()
     }
 
-    private fun fetchDashboardData() {
-        viewModelScope.launch {
-            try {
-                // Fetch health summary
-                _healthSummary.value = repository.getHealthSummary()
+    private fun setupAppointmentList() {
+        val appointmentAdapter = AppointmentAdapter()
+        appointmentRecyclerView.layoutManager = LinearLayoutManager(this)
+        appointmentRecyclerView.adapter = appointmentAdapter
 
-                // Fetch upcoming appointments
-                _upcomingAppointments.value = repository.getUpcomingAppointments()
-
-                // Fetch prescribed medicines
-                _prescribedMedicines.value = repository.getPrescribedMedicines()
-
-                // Fetch notifications
-                _notifications.value = repository.getNotifications()
-            } catch (e: Exception) {
-                // Handle errors
-                // You might want to set error state or show error message
-            }
+        viewModel.upcomingAppointments.observe(this) { appointments ->
+            appointmentAdapter.submitList(appointments)
         }
     }
 
-    fun addMedicineToList(medicine: Medicine) {
-        viewModelScope.launch {
-            repository.addMedicineToList(medicine)
-            // Refresh medicine list after adding
-            _prescribedMedicines.value = repository.getPrescribedMedicines()
+    private fun setupMedicineList() {
+        // Tambahkan parameter onStatusChangeListener di sini
+        medicineListAdapter = MedicineListAdapter { medicine, status ->
+            // Panggil metode update status di ViewModel
+            viewModel.updateMedicinePurchaseStatus(medicine.id, status.name)
+        }
+
+        medicineRecyclerView.layoutManager = LinearLayoutManager(this)
+        medicineRecyclerView.adapter = medicineListAdapter
+
+        viewModel.prescribedMedicines.observe(this) { medicines ->
+            medicineListAdapter.submitList(medicines)
         }
     }
 
-    fun updateMedicinePurchaseStatus(medicineId: String, status: String) {
-        viewModelScope.launch {
-            repository.updateMedicinePurchaseStatus(medicineId, status)
-            // Refresh medicine list after updating
-            _prescribedMedicines.value = repository.getPrescribedMedicines()
+    private fun observeDashboardData() {
+        viewModel.healthSummary.observe(this) { summary ->
+            // Update health summary UI elements
+            // For example: findViewById<TextView>(R.id.healthSummaryTextView).text = summary
+        }
+
+        viewModel.notifications.observe(this) { notifications ->
+            // Handle notifications
+            // You might want to show a badge or update a notification list
         }
     }
 }

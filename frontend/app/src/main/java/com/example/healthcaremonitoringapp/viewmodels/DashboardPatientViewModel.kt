@@ -1,5 +1,6 @@
 package com.example.healthcaremonitoringapp.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,7 +12,7 @@ import com.example.healthcaremonitoringapp.network.DashboardPatientRepository
 import com.example.healthcaremonitoringapp.network.RetrofitClient
 import kotlinx.coroutines.launch
 
-class DashboardViewModel : ViewModel() {
+class DashboardPatientViewModel : ViewModel() {
     private val repository = DashboardPatientRepository(RetrofitClient.apiService)
 
     private val _healthSummary = MutableLiveData<String>()
@@ -30,23 +31,35 @@ class DashboardViewModel : ViewModel() {
         fetchDashboardData()
     }
 
+//    private fun fetchDashboardData() {
+//        viewModelScope.launch {
+//            try {
+//                // Fetch health summary
+//                _healthSummary.value = repository.getHealthSummary()
+//
+//                // Fetch upcoming appointments
+//                _upcomingAppointments.value = repository.getUpcomingAppointments()
+//
+//                // Fetch prescribed medicines
+//                _prescribedMedicines.value = repository.getPrescribedMedicines()
+//
+//                // Fetch notifications
+//                _notifications.value = repository.getNotifications()
+//            } catch (e: Exception) {
+//                // Handle errors
+//                // You might want to set error state or show error message
+//            }
+//        }
+//    }
+
     private fun fetchDashboardData() {
         viewModelScope.launch {
             try {
-                // Fetch health summary
-                _healthSummary.value = repository.getHealthSummary()
-
-                // Fetch upcoming appointments
-                _upcomingAppointments.value = repository.getUpcomingAppointments()
-
-                // Fetch prescribed medicines
-                _prescribedMedicines.value = repository.getPrescribedMedicines()
-
-                // Fetch notifications
-                _notifications.value = repository.getNotifications()
+                val medicines = repository.getPrescribedMedicines()
+                Log.d("DashboardViewModel", "Medicines fetched: $medicines")
+                _prescribedMedicines.value = medicines
             } catch (e: Exception) {
-                // Handle errors
-                // You might want to set error state or show error message
+                Log.e("DashboardViewModel", "Error fetching medicines", e)
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.example.healthcaremonitoringapp.network
 
+import android.util.Log
 import com.example.healthcaremonitoringapp.models.Appointment
 import com.example.healthcaremonitoringapp.models.Medicine
 import com.example.healthcaremonitoringapp.models.Notification
@@ -26,11 +27,25 @@ class DashboardPatientRepository(private val apiService: PatientApiService) {
     }
 
     suspend fun getPrescribedMedicines(): List<Medicine> {
-        val response = apiService.getPrescribedMedicines()
-        return if (response.isSuccessful) {
-            response.body() ?: emptyList()
-        } else {
-            emptyList() // Handle error appropriately
+        try {
+            Log.d("Repository", "Attempting to fetch prescribed medicines")
+            val response = apiService.getPrescribedMedicines()
+
+            Log.d("Repository", "Response code: ${response.code()}")
+
+            if (response.isSuccessful) {
+                val medicines = response.body() ?: emptyList()
+                Log.d("Repository", "Medicines fetched: $medicines")
+                return medicines
+            } else {
+                // Log error body untuk detail lebih lanjut
+                val errorBody = response.errorBody()?.string()
+                Log.e("Repository", "Error response: $errorBody")
+                throw Exception("Failed to fetch prescribed medicines: ${response.code()} - $errorBody")
+            }
+        } catch (e: Exception) {
+            Log.e("Repository", "Exception in getPrescribedMedicines", e)
+            throw e
         }
     }
 

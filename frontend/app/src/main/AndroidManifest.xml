@@ -27,6 +27,10 @@
         <activity
             android:name=".ui.auth.LoginActivity"
             android:exported="true"/>
+
+        <activity
+            android:name=".ui.patient.DashboardActivity"
+            android:exported="true"/>
     </application>
 
 </manifest>

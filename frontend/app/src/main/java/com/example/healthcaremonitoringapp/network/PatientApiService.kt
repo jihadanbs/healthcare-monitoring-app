@@ -16,7 +16,7 @@ interface PatientApiService {
     @GET("appointments/upcoming")
     suspend fun getUpcomingAppointments(): Response<List<Appointment>>
 
-    @GET("medicines/prescribed")
+    @GET("dashboard/medicines/prescribed")
     suspend fun getPrescribedMedicines(): Response<List<Medicine>>
 
     @GET("notifications")

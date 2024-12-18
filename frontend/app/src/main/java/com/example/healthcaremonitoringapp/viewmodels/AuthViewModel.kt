@@ -20,12 +20,14 @@ class AuthViewModel : ViewModel() {
                 val response = RetrofitClient.instance.login(LoginRequest(email, password))
                 if (response.isSuccessful) {
                     val authResponse = response.body()
+                    // Atur token di RetrofitClient
+                    authResponse?.token?.let { RetrofitClient.setAuthToken(it) }
                     _loginState.value = AuthState.Success(authResponse!!)
                 } else {
                     _loginState.value = AuthState.Error(response.message())
                 }
             } catch (e: Exception) {
-                _loginState.value = AuthState.Error(e.message ?: "Login Failed")
+                _loginState.value = AuthState.Error(e.message ?: "Login Gagal")
             }
         }
     }
