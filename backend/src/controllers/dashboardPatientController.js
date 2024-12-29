@@ -123,51 +123,56 @@ exports.addMedicine = async (req, res) => {
 
 exports.updateMedicineStatus = async (req, res) => {
     try {
-        const { medicalRecordId, prescriptionId, status } = req.body;
+        const medicineId = req.params.id;
+        const { status } = req.body;
 
-        // Validate input
-        if (!medicalRecordId || !prescriptionId || !status) {
-            return res.status(400).json({ 
-                message: 'Medical Record ID, Prescription ID, and Status are required' 
-            });
-        }
+        console.log('Updating medicine status:', {
+            medicineId,
+            status,
+            body: req.body
+        });
 
         // Validate status
-        const validStatuses = ['pending', 'purchased', 'in_progress'];
+        const validStatuses = ['NOT_PURCHASED', 'IN_PROGRESS', 'PURCHASED'];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ 
-                message: 'Invalid medicine status' 
+                message: 'Invalid status value' 
             });
         }
 
-        // Update the medical record
-        const updatedMedicalRecord = await MedicalRecord.findOneAndUpdate(
+        // Find and update the specific prescription item in medical record
+        const updatedRecord = await MedicalRecord.findOneAndUpdate(
+            { 'prescription._id': medicineId },
             { 
-                _id: medicalRecordId, 
-                'prescription._id': prescriptionId 
+                $set: { 
+                    'prescription.$.status': status 
+                } 
             },
-            { 
-                $set: { 'prescription.$.status': status } 
-            },
-            { 
-                new: true // Return the updated document
-            }
+            { new: true }
         );
 
-        if (!updatedMedicalRecord) {
+        if (!updatedRecord) {
             return res.status(404).json({ 
-                message: 'Medical record or prescription not found' 
+                message: 'Medicine not found in prescriptions' 
             });
         }
+
+        // Find the updated prescription item
+        const updatedPrescription = updatedRecord.prescription.find(
+            p => p._id.toString() === medicineId
+        );
 
         res.json({
             message: 'Medicine status updated successfully',
-            medicalRecord: updatedMedicalRecord
+            prescription: updatedPrescription
         });
+
     } catch (error) {
+        console.error('Error updating medicine status:', error);
         res.status(500).json({ 
             message: 'Error updating medicine status', 
-            error: error.message 
+            error: error.message,
+            stack: error.stack
         });
     }
 };

@@ -65,10 +65,35 @@ class DashboardPatientRepository(private val apiService: PatientApiService) {
         }
     }
 
+//    suspend fun updateMedicinePurchaseStatus(medicineId: String, status: String) {
+//        val response = apiService.updateMedicineStatus(medicineId, status)
+//        if (!response.isSuccessful) {
+//            // Handle error appropriately
+//        }
+//    }
+
     suspend fun updateMedicinePurchaseStatus(medicineId: String, status: String) {
-        val response = apiService.updateMedicineStatus(medicineId, status)
-        if (!response.isSuccessful) {
-            // Handle error appropriately
+        try {
+            val validStatus = when(status) {
+                "NOT_PURCHASED" -> "NOT_PURCHASED"
+                "IN_PROGRESS" -> "IN_PROGRESS"
+                "PURCHASED" -> "PURCHASED"
+                else -> throw IllegalArgumentException("Invalid status: $status")
+            }
+
+            Log.d("Repository", "Sending request with ID: $medicineId and status: $validStatus")
+            val statusRequest = PatientApiService.UpdateStatusRequest(status = validStatus)
+
+            val response = apiService.updateMedicineStatus(medicineId, statusRequest)
+
+            if (!response.isSuccessful) {
+                val errorBody = response.errorBody()?.string()
+                Log.e("Repository", "Error response: $errorBody")
+                throw Exception("Server error: $errorBody")
+            }
+        } catch (e: Exception) {
+            Log.e("Repository", "Error updating medicine status", e)
+            throw e
         }
     }
 }

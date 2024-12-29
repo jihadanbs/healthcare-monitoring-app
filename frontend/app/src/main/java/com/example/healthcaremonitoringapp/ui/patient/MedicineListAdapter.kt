@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -64,6 +65,38 @@ class MedicineListAdapter(
                     statusTextView.setTextColor(itemView.context.getColor(android.R.color.holo_green_dark))
                     statusButton.isEnabled = false
                     statusButton.text = "Selesai"
+                }
+            }
+
+            statusButton.setOnClickListener {
+                try {
+                    when (medicine.status) {
+                        PurchaseStatus.NOT_PURCHASED -> {
+                            Toast.makeText(
+                                itemView.context,
+                                "Memulai proses pembelian obat ${medicine.medicine}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            onStatusChangeListener(medicine, PurchaseStatus.IN_PROGRESS)
+                        }
+                        PurchaseStatus.IN_PROGRESS -> {
+                            Toast.makeText(
+                                itemView.context,
+                                "Menandai obat ${medicine.medicine} sudah dibeli",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            onStatusChangeListener(medicine, PurchaseStatus.PURCHASED)
+                        }
+                        PurchaseStatus.PURCHASED -> {
+                            // Button sudah disabled untuk status ini
+                        }
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        itemView.context,
+                        "Error: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }

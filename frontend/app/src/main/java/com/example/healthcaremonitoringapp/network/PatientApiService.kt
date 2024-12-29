@@ -22,9 +22,19 @@ interface PatientApiService {
     @GET("notifications")
     suspend fun getNotifications(): Response<List<Notification>>
 
-    @POST("medicines")
+    @POST("dashboard/medicines")
     suspend fun addMedicine(@Body medicine: Medicine): Response<Void>
 
-    @POST("medicines/{id}/status")
-    suspend fun updateMedicineStatus(@Path("id") medicineId: String, @Body status: String): Response<Void>
+//    @POST("medicines/{id}/status")
+//    suspend fun updateMedicineStatus(@Path("id") medicineId: String, @Body status: String): Response<Void>
+
+//    @POST("medicines/{id}/status")
+//    suspend fun updateMedicineStatus(@Path("id") medicineId: String, @Body status: Map<String, String>): Response<Void>
+
+    @POST("dashboard/medicines/{id}/status")
+    suspend fun updateMedicineStatus(@Path("id") medicineId: String, @Body statusRequest: UpdateStatusRequest): Response<UpdateStatusResponse>
+
+    data class UpdateStatusRequest(val status: String)
+
+    data class UpdateStatusResponse(val message: String, val prescription: Medicine)
 }

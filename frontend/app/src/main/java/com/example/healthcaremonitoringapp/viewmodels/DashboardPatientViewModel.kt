@@ -13,6 +13,9 @@ import com.example.healthcaremonitoringapp.network.RetrofitClient
 import kotlinx.coroutines.launch
 
 class DashboardPatientViewModel : ViewModel() {
+    private val _error = MutableLiveData<String>()
+    val error: LiveData<String> = _error
+
     private val repository = DashboardPatientRepository(RetrofitClient.apiService)
 
     private val _healthSummary = MutableLiveData<String>()
@@ -74,9 +77,14 @@ class DashboardPatientViewModel : ViewModel() {
 
     fun updateMedicinePurchaseStatus(medicineId: String, status: String) {
         viewModelScope.launch {
-            repository.updateMedicinePurchaseStatus(medicineId, status)
-            // Refresh medicine list after updating
-            _prescribedMedicines.value = repository.getPrescribedMedicines()
+            try {
+                repository.updateMedicinePurchaseStatus(medicineId, status)
+                // Refresh medicine list after updating
+                _prescribedMedicines.value = repository.getPrescribedMedicines()
+            } catch (e: Exception) {
+                _error.value = "Error: ${e.message}"
+                Log.e("ViewModel", "Error updating medicine status", e)
+            }
         }
     }
 }

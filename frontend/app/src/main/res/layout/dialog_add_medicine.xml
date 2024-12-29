@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/medicineNameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nama Obat"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/dosageInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Dosis"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/frequencyInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Frekuensi"
+        android:layout_marginBottom="8dp"/>
+
+</LinearLayout>

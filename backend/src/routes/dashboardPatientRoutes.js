@@ -13,6 +13,6 @@ router.post('/medicines', authMiddleware, dashboardController.addMedicine);
 router.get('/medicines/prescribed', authMiddleware, dashboardController.getPrescribedMedicines);
 
 // Route untuk memperbarui status pembelian obat
-router.patch('/medicines/:id/status', authMiddleware, dashboardController.updateMedicineStatus);
+router.post('/medicines/:id/status', authMiddleware, dashboardController.updateMedicineStatus);
 
 module.exports = router;
