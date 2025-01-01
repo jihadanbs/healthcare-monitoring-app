@@ -24,7 +24,8 @@ class AuthViewModel : ViewModel() {
                     authResponse?.token?.let { RetrofitClient.setAuthToken(it) }
                     _loginState.value = AuthState.Success(authResponse!!)
                 } else {
-                    _loginState.value = AuthState.Error(response.message())
+                    val errorMessage = response.errorBody()?.string() ?: response.message()
+                    _loginState.value = AuthState.Error(errorMessage)
                 }
             } catch (e: Exception) {
                 _loginState.value = AuthState.Error(e.message ?: "Login Gagal")
