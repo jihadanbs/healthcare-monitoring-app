@@ -2,7 +2,8 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.HealthCareMonitoringApp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<!--         <item name="colorPrimary">#2C7BBE</item>-->
+<!--        <item name="backgroundColor">#2C7BBE</item>-->
     </style>
 
     <style name="Theme.HealthCareMonitoringApp" parent="Base.Theme.HealthCareMonitoringApp" />

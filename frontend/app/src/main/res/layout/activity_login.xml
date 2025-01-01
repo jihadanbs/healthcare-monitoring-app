@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F5F5F5"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,6 +18,7 @@
             android:id="@+id/logoImageView"
             android:layout_width="120dp"
             android:layout_height="120dp"
+            android:layout_marginTop="60dp"
             android:layout_marginBottom="16dp"
             android:src="@drawable/logo_klinik"
             android:scaleType="centerInside" />
@@ -40,9 +42,11 @@
             android:textSize="16sp"
             android:textColor="#757575"
             android:layout_marginBottom="24dp" />
-
         <!-- Email Input -->
+
+        <!-- Password Input -->
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp">
@@ -51,17 +55,17 @@
                 android:id="@+id/emailEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Email"
-                android:textColor="#000000"
-                android:inputType="textEmailAddress"
                 android:drawableStart="@drawable/user_icon"
+                android:drawablePadding="16dp"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
                 android:padding="12dp"
                 android:paddingStart="24dp"
-                android:drawablePadding="16dp"/>
+                android:textColor="#000000" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Password Input -->
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp">
@@ -78,6 +82,26 @@
                 android:paddingStart="24dp"
                 android:drawablePadding="16dp"/>
         </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right">
+
+            <TextView
+                android:id="@+id/forgotPasswordTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:minWidth="120dp"
+                android:padding="8dp"
+                android:text="Lupa Password?"
+                android:textColor="#2C7BBE"
+                android:textSize="14sp"
+                android:clickable="true"
+                android:focusable="true"/>
+
+        </LinearLayout>
 
         <!-- Login Button -->
         <Button
@@ -101,10 +125,10 @@
 
         <!-- Forgot Password -->
         <TextView
-            android:id="@+id/forgotPasswordTextView"
+            android:id="@+id/registrasiTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Lupa Password?"
+            android:text="Registrasi Akun"
             android:textSize="14sp"
             android:textColor="#2C7BBE"
             android:layout_marginTop="8dp"
