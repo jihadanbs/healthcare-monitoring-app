@@ -1,36 +1,39 @@
 package com.example.healthcaremonitoringapp.ui.auth
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.healthcaremonitoringapp.databinding.ActivityLoginBinding
-import com.example.healthcaremonitoringapp.ui.patient.DashboardActivity
+import com.example.healthcaremonitoringapp.databinding.ActivityRegisterBinding
 import com.example.healthcaremonitoringapp.viewmodels.AuthViewModel
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
-class LoginActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityLoginBinding
-    private val authViewModel: AuthViewModel by viewModels()
+class RegisterActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityRegisterBinding
+    private val viewModel: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLoginBinding.inflate(layoutInflater)
+        binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.loginButton.setOnClickListener {
+        binding.registerButton.setOnClickListener {
+            val name = binding.nameEditText.text.toString().trim()
             val email = binding.emailEditText.text.toString().trim()
             val password = binding.passwordEditText.text.toString().trim()
 
             // Validasi input
             when {
-                email.isEmpty() && password.isEmpty() -> {
-                    Toast.makeText(this, "Email dan password tidak boleh kosong!", Toast.LENGTH_SHORT).show()
+                name.isEmpty() && email.isEmpty() && password.isEmpty() -> {
+                    Toast.makeText(this, "Semua field harus diisi!", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                name.isEmpty() -> {
+                    Toast.makeText(this, "Nama tidak boleh kosong!", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 email.isEmpty() -> {
@@ -46,70 +49,55 @@ class LoginActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
                 else -> {
-                    // Kirim data ke ViewModel untuk proses login
-                    authViewModel.login(email, password)
+                    // Kirim data ke ViewModel untuk proses registrasi
+                    viewModel.register(name, email, password)
                 }
             }
         }
 
-        observeLoginState()
-
-        binding.registrasiTextView.setOnClickListener {
-            startActivity(Intent(this, RegisterActivity::class.java))
-        }
-    }
-
-    private fun observeLoginState() {
+        // Observe registration state
         lifecycleScope.launch {
-            authViewModel.loginState.collect { state ->
+            viewModel.registrationState.collect { state ->
                 when (state) {
                     is AuthViewModel.AuthState.Loading -> {
                         binding.progressBar.visibility = View.VISIBLE
-                        binding.loginButton.isEnabled = false
+                        binding.registerButton.isEnabled = false
                     }
                     is AuthViewModel.AuthState.Success -> {
                         binding.progressBar.visibility = View.GONE
-                        showLoginSuccessDialog()
+                        Toast.makeText(this@RegisterActivity, "Registrasi berhasil", Toast.LENGTH_SHORT).show()
+                        finish()
                     }
                     is AuthViewModel.AuthState.Error -> {
                         binding.progressBar.visibility = View.GONE
-                        binding.loginButton.isEnabled = true
-
-                        handleLoginError(state.message)
+                        binding.registerButton.isEnabled = true
+                        handleRegistrationError(state.message)
                     }
                     else -> {
                         binding.progressBar.visibility = View.GONE
-                        binding.loginButton.isEnabled = true
+                        binding.registerButton.isEnabled = true
                     }
                 }
             }
         }
+
+        binding.backButton.setOnClickListener {
+            onBackPressed()
+        }
+
+        binding.loginLinkText.setOnClickListener {
+            finish()
+        }
     }
 
-    private fun handleLoginError(message: String) {
+    private fun handleRegistrationError(message: String) {
         when {
-            message.contains("Email tidak ditemukan", true) -> {
-                Toast.makeText(this, "Email tidak tersedia, silakan periksa kembali!", Toast.LENGTH_SHORT).show()
-            }
-            message.contains("Password salah", true) -> {
-                Toast.makeText(this, "Password salah, silakan coba lagi!", Toast.LENGTH_SHORT).show()
+            message.contains("Email sudah terdaftar!", true) -> {
+                Toast.makeText(this, "Email sudah terdaftar, silakan gunakan email lain!", Toast.LENGTH_SHORT).show()
             }
             else -> {
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    private fun showLoginSuccessDialog() {
-        AlertDialog.Builder(this)
-            .setTitle("Login Berhasil")
-            .setMessage("Selamat datang! Anda berhasil masuk ke aplikasi.")
-            .setPositiveButton("Lanjutkan") { dialog, _ ->
-                startActivity(Intent(this, DashboardActivity::class.java))
-                dialog.dismiss()
-                finish()
-            }
-            .setCancelable(false)
-            .show()
     }
 }

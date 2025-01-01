@@ -42,9 +42,8 @@
             android:textSize="16sp"
             android:textColor="#757575"
             android:layout_marginBottom="24dp" />
-        <!-- Email Input -->
 
-        <!-- Password Input -->
+        <!-- Email Input -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutEmail"
             android:layout_width="match_parent"
@@ -64,6 +63,7 @@
                 android:textColor="#000000" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Password Input -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutPassword"
             android:layout_width="match_parent"

@@ -11,7 +11,7 @@ class AuthController {
         // Cek apakah user sudah ada
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'Email sudah terdaftar' });
+            return res.status(400).json({ message: 'Email sudah terdaftar, silakan gunakan email lain!' });
         }
 
         // Hash password

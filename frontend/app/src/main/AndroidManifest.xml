@@ -29,6 +29,10 @@
             android:exported="true"/>
 
         <activity
+            android:name=".ui.auth.RegisterActivity"
+            android:exported="true"/>
+
+        <activity
             android:name=".ui.patient.DashboardActivity"
             android:exported="true"/>
     </application>
