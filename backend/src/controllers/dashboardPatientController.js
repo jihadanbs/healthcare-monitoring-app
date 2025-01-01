@@ -61,7 +61,8 @@ exports.getPrescribedMedicines = async (req, res) => {
                 medicine: item.medicine,
                 dosage: item.dosage,
                 frequency: item.frequency,
-                status: item.status
+                status: item.status,
+                price: item.price
             }))
         );
 

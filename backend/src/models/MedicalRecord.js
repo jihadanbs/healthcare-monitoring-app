@@ -39,7 +39,11 @@ const MedicalRecordSchema = new mongoose.Schema({
             type: String,
             enum: ['NOT_PURCHASED', 'IN_PROGRESS', 'PURCHASED'],
             default: 'NOT_PURCHASED'
-        }
+        },
+        price: {
+            type: Number,
+            required: true
+        },
     }],
     additionalNotes: {
         type: String
