@@ -36,11 +36,13 @@ class MedicineListAdapter(
         private val frequencyTextView: TextView = itemView.findViewById(R.id.frequencyTextView)
         private val statusTextView: TextView = itemView.findViewById(R.id.purchaseStatusTextView)
         private val statusButton: Button = itemView.findViewById(R.id.changeStatusButton)
+        private val priceTextView: TextView = itemView.findViewById(R.id.priceTextView)
 
         fun bind(medicine: Medicine) {
             nameTextView.text = medicine.medicine
             dosageTextView.text = "Dosis: ${medicine.dosage}"
             frequencyTextView.text = "Frekuensi: ${medicine.frequency}"
+            priceTextView.text = "Harga: Rp.${medicine.price}"
 
             // Set purchase status text and color
             when (medicine.status) {

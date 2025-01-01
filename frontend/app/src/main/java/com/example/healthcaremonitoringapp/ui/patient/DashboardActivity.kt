@@ -92,24 +92,37 @@ class DashboardActivity : AppCompatActivity() {
         val medicineNameInput = dialogView.findViewById<EditText>(R.id.medicineNameInput)
         val dosageInput = dialogView.findViewById<EditText>(R.id.dosageInput)
         val frequencyInput = dialogView.findViewById<EditText>(R.id.frequencyInput)
+        val priceInput = dialogView.findViewById<EditText>(R.id.priceInput)
 
         AlertDialog.Builder(this)
             .setTitle("Tambah Obat Baru")
             .setView(dialogView)
-            .setPositiveButton("Tambah") { dialog, _ ->
+            .setPositiveButton("Tambah") { _, _ ->
                 val medicineName = medicineNameInput.text.toString()
                 val dosage = dosageInput.text.toString()
                 val frequency = frequencyInput.text.toString()
+                val priceText = priceInput.text.toString()
 
-                if (medicineName.isNotBlank() && dosage.isNotBlank() && frequency.isNotBlank()) {
-                    val newMedicine = Medicine(
-                        id = UUID.randomUUID().toString(), // Generate temporary ID
-                        medicine = medicineName,
-                        dosage = dosage,
-                        frequency = frequency,
-                        status = PurchaseStatus.NOT_PURCHASED
-                    )
-                    viewModel.addMedicineToList(newMedicine)
+                // Validasi input dan konversi harga
+                if (medicineName.isNotBlank() && dosage.isNotBlank() && frequency.isNotBlank() && priceText.isNotBlank()) {
+                    try {
+                        val price = priceText.toInt() // Konversi String ke Int
+
+                        val newMedicine = Medicine(
+                            id = UUID.randomUUID().toString(), // Generate temporary ID
+                            medicine = medicineName,
+                            dosage = dosage,
+                            frequency = frequency,
+                            status = PurchaseStatus.NOT_PURCHASED,
+                            price = price
+                        )
+                        viewModel.addMedicineToList(newMedicine)
+                    } catch (e: NumberFormatException) {
+                        // Tampilkan pesan error jika input harga tidak valid
+                        Toast.makeText(this, "Harga harus berupa angka valid", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this, "Semua field wajib diisi", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Batal", null)

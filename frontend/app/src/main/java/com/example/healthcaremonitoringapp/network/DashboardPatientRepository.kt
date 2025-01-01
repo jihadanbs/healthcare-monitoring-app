@@ -4,7 +4,6 @@ import android.util.Log
 import com.example.healthcaremonitoringapp.models.Appointment
 import com.example.healthcaremonitoringapp.models.Medicine
 import com.example.healthcaremonitoringapp.models.Notification
-import retrofit2.Response
 
 class DashboardPatientRepository(private val apiService: PatientApiService) {
 
@@ -64,13 +63,6 @@ class DashboardPatientRepository(private val apiService: PatientApiService) {
             // Handle error appropriately
         }
     }
-
-//    suspend fun updateMedicinePurchaseStatus(medicineId: String, status: String) {
-//        val response = apiService.updateMedicineStatus(medicineId, status)
-//        if (!response.isSuccessful) {
-//            // Handle error appropriately
-//        }
-//    }
 
     suspend fun updateMedicinePurchaseStatus(medicineId: String, status: String) {
         try {

@@ -14,6 +14,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Nama Obat -->
         <TextView
             android:id="@+id/medicineNameTextView"
             android:layout_width="match_parent"
@@ -21,6 +22,7 @@
             android:textStyle="bold"
             android:textSize="16sp"/>
 
+        <!-- Dosis -->
         <TextView
             android:id="@+id/dosageTextView"
             android:layout_width="match_parent"
@@ -28,6 +30,7 @@
             android:layout_marginTop="4dp"
             android:textColor="@android:color/darker_gray"/>
 
+        <!-- Frekuensi -->
         <TextView
             android:id="@+id/frequencyTextView"
             android:layout_width="match_parent"
@@ -35,6 +38,16 @@
             android:layout_marginTop="4dp"
             android:textColor="@android:color/darker_gray"/>
 
+        <!-- Harga -->
+        <TextView
+            android:id="@+id/priceTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textStyle="bold"
+            android:textColor="@android:color/darker_gray"/>
+
+        <!-- Status Pembelian -->
         <TextView
             android:id="@+id/purchaseStatusTextView"
             android:layout_width="match_parent"
@@ -42,11 +55,13 @@
             android:layout_marginTop="8dp"
             android:textStyle="bold"/>
 
+        <!-- Tombol Ubah Status -->
         <Button
             android:id="@+id/changeStatusButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:text="Change Status"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

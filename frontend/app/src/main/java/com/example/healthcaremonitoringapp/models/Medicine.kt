@@ -6,6 +6,7 @@ data class Medicine(
     val dosage: String,
     val frequency: String,
     val status: PurchaseStatus,
+    val price: Int
 )
 
 enum class PurchaseStatus {
