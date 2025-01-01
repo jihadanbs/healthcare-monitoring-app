@@ -42,7 +42,7 @@ class MedicineListAdapter(
             nameTextView.text = medicine.medicine
             dosageTextView.text = "Dosis: ${medicine.dosage}"
             frequencyTextView.text = "Frekuensi: ${medicine.frequency}"
-            priceTextView.text = "Harga: Rp.${medicine.price}"
+            priceTextView.text = "Harga: Rp. ${medicine.price}"
 
             // Set purchase status text and color
             when (medicine.status) {

@@ -2,7 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,15 +18,26 @@
             android:layout_height="wrap_content"
             android:text="Ringkasan Kesehatan"
             android:textStyle="bold"
-            android:textSize="18sp"
+            android:textSize="20sp"
+            android:textColor="#2C7BBE"
             android:layout_marginBottom="8dp"/>
 
-        <TextView
-            android:id="@+id/healthSummaryTextView"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/background_summary"
-            android:padding="12dp"/>
+            app:cardCornerRadius="8dp"
+            app:cardElevation="6dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/healthSummaryTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/background_summary"
+                android:padding="12dp"
+                android:textColor="#000000"
+                android:textSize="16sp"/>
+        </androidx.cardview.widget.CardView>
 
         <!-- Upcoming Appointments -->
         <TextView
@@ -33,14 +45,16 @@
             android:layout_height="wrap_content"
             android:text="Jadwal Pemeriksaan"
             android:textStyle="bold"
-            android:textSize="18sp"
+            android:textSize="20sp"
+            android:textColor="#2C7BBE"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/appointmentRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"/>
 
         <!-- Notifications -->
         <TextView
@@ -48,14 +62,16 @@
             android:layout_height="wrap_content"
             android:text="Notifikasi"
             android:textStyle="bold"
-            android:textSize="18sp"
+            android:textSize="20sp"
+            android:textColor="#2C7BBE"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/notificationRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"/>
 
         <!-- Prescribed Medicines -->
         <TextView
@@ -63,20 +79,25 @@
             android:layout_height="wrap_content"
             android:text="Daftar Obat yang Diresepkan"
             android:textStyle="bold"
-            android:textSize="18sp"
+            android:textSize="20sp"
+            android:textColor="#2C7BBE"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/medicineRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"/>
 
         <!-- Add Medicine Button -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/addMedicineButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tambah Obat ke Daftar"/>
+            android:text="Tambah Obat ke Daftar"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#2C7BBE"
+            android:layout_marginBottom="16dp"/>
     </LinearLayout>
 </ScrollView>
