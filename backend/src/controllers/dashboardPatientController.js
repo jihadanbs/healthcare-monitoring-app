@@ -74,53 +74,6 @@ exports.getPrescribedMedicines = async (req, res) => {
     }
 };
 
-exports.addMedicine = async (req, res) => {
-    try {
-        const { 
-            patient, 
-            doctor, 
-            consultation, 
-            diagnosis, 
-            symptoms, 
-            prescription, 
-            additionalNotes, 
-            followUpDate 
-        } = req.body;
-
-        // Validate required fields
-        if (!patient || !doctor || !diagnosis) {
-            return res.status(400).json({ 
-                message: 'Patient, doctor, and diagnosis are required' 
-            });
-        }
-
-        // Create new medical record
-        const newMedicalRecord = new MedicalRecord({
-            patient,
-            doctor,
-            consultation: consultation || null,
-            diagnosis,
-            symptoms: symptoms || [],
-            prescription: prescription || [],
-            additionalNotes: additionalNotes || '',
-            followUpDate: followUpDate || null
-        });
-
-        // Save the medical record
-        const savedMedicalRecord = await newMedicalRecord.save();
-
-        res.status(201).json({
-            message: 'Medical record added successfully',
-            medicalRecord: savedMedicalRecord
-        });
-    } catch (error) {
-        res.status(500).json({ 
-            message: 'Error adding medical record', 
-            error: error.message 
-        });
-    }
-};
-
 exports.updateMedicineStatus = async (req, res) => {
     try {
         const medicineId = req.params.id;
