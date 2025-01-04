@@ -1,4 +1,3 @@
-const User = require('../models/User');
 const MedicalRecord = require('../models/MedicalRecord');
 const Consultation = require('../models/Consultation');
 const Notification = require('../models/Notification');
