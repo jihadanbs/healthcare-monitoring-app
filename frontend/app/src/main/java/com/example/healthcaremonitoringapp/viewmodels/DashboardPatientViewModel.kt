@@ -34,27 +34,6 @@ class DashboardPatientViewModel : ViewModel() {
         fetchDashboardData()
     }
 
-//    private fun fetchDashboardData() {
-//        viewModelScope.launch {
-//            try {
-//                // Fetch health summary
-//                _healthSummary.value = repository.getHealthSummary()
-//
-//                // Fetch upcoming appointments
-//                _upcomingAppointments.value = repository.getUpcomingAppointments()
-//
-//                // Fetch prescribed medicines
-//                _prescribedMedicines.value = repository.getPrescribedMedicines()
-//
-//                // Fetch notifications
-//                _notifications.value = repository.getNotifications()
-//            } catch (e: Exception) {
-//                // Handle errors
-//                // You might want to set error state or show error message
-//            }
-//        }
-//    }
-
     private fun fetchDashboardData() {
         viewModelScope.launch {
             try {
