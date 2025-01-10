@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const MedicalRecord = require('../models/MedicalRecord');
 const Consultation = require('../models/Consultation');
 const Notification = require('../models/Notification');
@@ -48,10 +49,15 @@ exports.getDashboardData = async (req, res) => {
 exports.getPrescribedMedicines = async (req, res) => {
     try {
         const userId = req.user.id;
-        const prescribedMedicines = await MedicalRecord.find({ 
-            patient: userId, 
-            'prescription.status': { $ne: 'PURCHASED' }
-        }).select('prescription');
+        const prescribedMedicines = await MedicalRecord.aggregate([
+            { $match: { patient: new mongoose.Types.ObjectId(userId) } },
+            { $unwind: "$prescription" },
+            { $match: { "prescription.status": { $ne: "PURCHASED" } } },
+            { $group: {
+                _id: "$_id",
+                prescription: { $push: "$prescription" }
+            }}
+        ]);
 
         // Transform data to match frontend model
         const medicines = prescribedMedicines.flatMap(record => 

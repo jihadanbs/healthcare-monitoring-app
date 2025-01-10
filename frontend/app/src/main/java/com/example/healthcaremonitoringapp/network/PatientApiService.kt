@@ -31,4 +31,17 @@ interface PatientApiService {
     data class UpdateStatusRequest(val status: String)
 
     data class UpdateStatusResponse(val message: String, val prescription: Medicine)
+
+    @POST("dashboard/checkout/process")
+    suspend fun processCheckout(@Body checkoutRequest: CheckoutRequest): Response<CheckoutResponse>
+
+    data class CheckoutRequest(
+        val medicineId: String,
+        val amount: Int
+    )
+
+    data class CheckoutResponse(
+        val success: Boolean,
+        val message: String
+    )
 }

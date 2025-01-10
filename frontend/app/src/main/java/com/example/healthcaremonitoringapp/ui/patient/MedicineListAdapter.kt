@@ -1,5 +1,6 @@
 package com.example.healthcaremonitoringapp.ui.patient
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,13 +15,14 @@ import com.example.healthcaremonitoringapp.models.Medicine
 import com.example.healthcaremonitoringapp.models.PurchaseStatus
 
 class MedicineListAdapter(
-    private val onStatusChangeListener: (Medicine, PurchaseStatus) -> Unit
+    private val onStatusChangeListener: (Medicine, PurchaseStatus) -> Unit,
+    private val onCheckoutClick: (Medicine) -> Unit
 ) : ListAdapter<Medicine, MedicineListAdapter.MedicineViewHolder>(MedicineDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_medicine, parent, false)
-        return MedicineViewHolder(view, onStatusChangeListener)
+        return MedicineViewHolder(view, onStatusChangeListener, onCheckoutClick)
     }
 
     override fun onBindViewHolder(holder: MedicineViewHolder, position: Int) {
@@ -29,7 +31,8 @@ class MedicineListAdapter(
 
     class MedicineViewHolder(
         itemView: View,
-        private val onStatusChangeListener: (Medicine, PurchaseStatus) -> Unit
+        private val onStatusChangeListener: (Medicine, PurchaseStatus) -> Unit,
+        private val onCheckoutClick: (Medicine) -> Unit
     ) : RecyclerView.ViewHolder(itemView) {
         private val nameTextView: TextView = itemView.findViewById(R.id.medicineNameTextView)
         private val dosageTextView: TextView = itemView.findViewById(R.id.dosageTextView)
@@ -51,7 +54,9 @@ class MedicineListAdapter(
                     statusTextView.setTextColor(itemView.context.getColor(android.R.color.holo_red_dark))
                     statusButton.text = "Mulai Proses Beli"
                     statusButton.setOnClickListener {
-                        onStatusChangeListener(medicine, PurchaseStatus.IN_PROGRESS)
+//                        onStatusChangeListener(medicine, PurchaseStatus.IN_PROGRESS)
+                        Log.d("MedicineListAdapter", "Checkout clicked for medicine: $medicine")
+                        onCheckoutClick(medicine)
                     }
                 }
                 PurchaseStatus.IN_PROGRESS -> {
@@ -100,6 +105,10 @@ class MedicineListAdapter(
                         Toast.LENGTH_LONG
                     ).show()
                 }
+
+                Log.d("MedicineListAdapter", "Checkout clicked for medicine: $medicine")
+                Log.d("MedicineListAdapter", "Medicine details - ID: ${medicine.id}, Name: ${medicine.medicine}")
+                onCheckoutClick(medicine)
             }
         }
     }

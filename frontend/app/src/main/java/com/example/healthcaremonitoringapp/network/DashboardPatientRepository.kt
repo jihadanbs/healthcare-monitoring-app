@@ -64,6 +64,13 @@ class DashboardPatientRepository(private val apiService: PatientApiService) {
         }
     }
 
+    suspend fun processCheckout(medicineId: String, amount: Int): Boolean {
+        val response = apiService.processCheckout(
+            PatientApiService.CheckoutRequest(medicineId, amount)
+        )
+        return response.isSuccessful
+    }
+
     suspend fun updateMedicinePurchaseStatus(medicineId: String, status: String) {
         try {
             val validStatus = when(status) {

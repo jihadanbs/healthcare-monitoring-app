@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.PARCELIZE"/>
 
     <application
         android:allowBackup="true"
@@ -35,6 +36,10 @@
         <activity
             android:name=".ui.patient.DashboardActivity"
             android:exported="true"/>
+
+        <activity
+            android:name=".ui.patient.checkout.CheckoutActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

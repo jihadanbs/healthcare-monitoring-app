@@ -1,7 +1,9 @@
 package com.example.healthcaremonitoringapp.ui.patient
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.EditText
@@ -13,7 +15,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcaremonitoringapp.R
 import com.example.healthcaremonitoringapp.models.Medicine
 import com.example.healthcaremonitoringapp.models.PurchaseStatus
+import com.example.healthcaremonitoringapp.ui.patient.checkout.CheckoutActivity
 import com.example.healthcaremonitoringapp.viewmodels.DashboardPatientViewModel
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.UUID
 
 class DashboardActivity : AppCompatActivity() {
@@ -48,6 +52,31 @@ class DashboardActivity : AppCompatActivity() {
         viewModel.error.observe(this) { errorMessage ->
             Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
         }
+
+        val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottomNavigation)
+        bottomNavigation.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_home -> true
+                R.id.navigation_checkout -> {
+                    startActivity(Intent(this, CheckoutActivity::class.java))
+                    true
+                }
+                R.id.navigation_account -> {
+                    // Handle account navigation
+                    true
+                }
+                else -> false
+            }
+        }
+        bottomNavigation.selectedItemId = R.id.navigation_home
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == CHECKOUT_REQUEST_CODE && resultCode == RESULT_OK) {
+            // Refresh data setelah checkout berhasil
+            viewModel.fetchPrescribedMedicines()
+        }
     }
 
     private fun setupAppointmentList() {
@@ -62,10 +91,36 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun setupMedicineList() {
         // Tambahkan parameter onStatusChangeListener di sini
-        medicineListAdapter = MedicineListAdapter { medicine, status ->
-            // Panggil metode update status di ViewModel
-            viewModel.updateMedicinePurchaseStatus(medicine.id, status.name)
-        }
+//        medicineListAdapter = MedicineListAdapter { medicine, status ->
+//            // Panggil metode update status di ViewModel
+//            viewModel.updateMedicinePurchaseStatus(medicine.id, status.name)
+//        }
+//
+//        medicineRecyclerView.layoutManager = LinearLayoutManager(this)
+//        medicineRecyclerView.adapter = medicineListAdapter
+//
+//        viewModel.prescribedMedicines.observe(this) { medicines ->
+//            medicineListAdapter.submitList(medicines)
+//        }
+
+        medicineListAdapter = MedicineListAdapter(
+            onStatusChangeListener = { medicine, status ->
+                viewModel.updateMedicinePurchaseStatus(medicine.id, status.name)
+            },
+            onCheckoutClick = { medicine ->
+                // Tambahkan log untuk memastikan data medicine tidak null
+                Log.d("DashboardActivity", "Medicine to checkout: $medicine")
+
+                // Pastikan medicine adalah Parcelable
+                val intent = Intent(this, CheckoutActivity::class.java)
+                intent.putExtra("SELECTED_MEDICINE", medicine)
+
+                // Gunakan startActivity dengan requestCode untuk bisa menerima hasil
+                startActivityForResult(intent, CHECKOUT_REQUEST_CODE)
+                // Atau jika menggunakan activity result API yang baru:
+                // checkoutLauncher.launch(intent)
+            }
+        )
 
         medicineRecyclerView.layoutManager = LinearLayoutManager(this)
         medicineRecyclerView.adapter = medicineListAdapter
@@ -73,6 +128,10 @@ class DashboardActivity : AppCompatActivity() {
         viewModel.prescribedMedicines.observe(this) { medicines ->
             medicineListAdapter.submitList(medicines)
         }
+    }
+
+    companion object {
+        const val CHECKOUT_REQUEST_CODE = 100
     }
 
     private fun observeDashboardData() {
@@ -94,38 +153,33 @@ class DashboardActivity : AppCompatActivity() {
         val frequencyInput = dialogView.findViewById<EditText>(R.id.frequencyInput)
         val priceInput = dialogView.findViewById<EditText>(R.id.priceInput)
 
-        AlertDialog.Builder(this)
-            .setTitle("Tambah Obat Baru")
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Add Medicine")
             .setView(dialogView)
-            .setPositiveButton("Tambah") { _, _ ->
+            .setPositiveButton("Add") { _, _ ->
                 val medicineName = medicineNameInput.text.toString()
                 val dosage = dosageInput.text.toString()
                 val frequency = frequencyInput.text.toString()
-                val priceText = priceInput.text.toString()
+                val price = priceInput.text.toString().toIntOrNull() ?: 0
 
-                // Validasi input dan konversi harga
-                if (medicineName.isNotBlank() && dosage.isNotBlank() && frequency.isNotBlank() && priceText.isNotBlank()) {
-                    try {
-                        val price = priceText.toInt() // Konversi String ke Int
-
-                        val newMedicine = Medicine(
-                            id = UUID.randomUUID().toString(), // Generate temporary ID
-                            medicine = medicineName,
-                            dosage = dosage,
-                            frequency = frequency,
-                            status = PurchaseStatus.NOT_PURCHASED,
-                            price = price
-                        )
-                        viewModel.addMedicineToList(newMedicine)
-                    } catch (e: NumberFormatException) {
-                        // Tampilkan pesan error jika input harga tidak valid
-                        Toast.makeText(this, "Harga harus berupa angka valid", Toast.LENGTH_SHORT).show()
-                    }
+                if (medicineName.isNotEmpty() && dosage.isNotEmpty() && frequency.isNotEmpty()) {
+                    val newMedicine = Medicine(
+                        id = UUID.randomUUID().toString(),
+                        medicine = medicineName,
+                        dosage = dosage,
+                        frequency = frequency,
+                        status = PurchaseStatus.NOT_PURCHASED,
+                        price = price
+                    )
+                    // Panggil ViewModel untuk menambahkan data
+                    viewModel.addMedicineToList(newMedicine)
                 } else {
-                    Toast.makeText(this, "Semua field wajib diisi", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNegativeButton("Batal", null)
-            .show()
+            .setNegativeButton("Cancel", null)
+            .create()
+
+        dialog.show()
     }
 }

@@ -66,4 +66,17 @@ class DashboardPatientViewModel : ViewModel() {
             }
         }
     }
+
+    fun fetchPrescribedMedicines() {
+        viewModelScope.launch {
+            try {
+                val medicines = repository.getPrescribedMedicines()
+                _prescribedMedicines.value = medicines
+            } catch (e: Exception) {
+                _error.value = "Error: ${e.message}"
+                Log.e("DashboardViewModel", "Error fetching prescribed medicines", e)
+            }
+        }
+    }
+
 }
