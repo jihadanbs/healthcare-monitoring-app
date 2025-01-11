@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const MedicalRecord = require('../models/MedicalRecord');
 const Consultation = require('../models/Consultation');
 const Notification = require('../models/Notification');
+const User = require('../models/User');
 
 exports.getDashboardData = async (req, res) => {
     try {
@@ -132,6 +133,160 @@ exports.updateMedicineStatus = async (req, res) => {
             message: 'Error updating medicine status', 
             error: error.message,
             stack: error.stack
+        });
+    }
+};
+
+exports.getCheckoutMedicines = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // First verify the user is a patient
+        const user = await User.findById(userId);
+        if (!user || user.role !== 'patient') {
+            return res.status(403).json({
+                success: false,
+                message: 'Only patients can access checkout items'
+            });
+        }
+
+        // Fetch medicines with IN_PROGRESS status for the specific patient
+        const checkoutItems = await MedicalRecord.aggregate([
+            {
+                $match: {
+                    patient: new mongoose.Types.ObjectId(userId)
+                }
+            },
+            {
+                $unwind: "$prescription"
+            },
+            {
+                $match: {
+                    "prescription.status": "IN_PROGRESS"
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "doctor",
+                    foreignField: "_id",
+                    as: "doctorDetails"
+                }
+            },
+            {
+                $unwind: "$doctorDetails"
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    consultationDate: { $first: "$createdAt" },
+                    doctorName: { $first: "$doctorDetails.name" },
+                    doctorSpecialization: { $first: "$doctorDetails.profile.specialization" },
+                    prescription: {
+                        $push: {
+                            id: "$prescription._id",
+                            medicine: "$prescription.medicine",
+                            dosage: "$prescription.dosage",
+                            frequency: "$prescription.frequency",
+                            price: "$prescription.price",
+                            status: "$prescription.status"
+                        }
+                    },
+                    totalAmount: {
+                        $sum: "$prescription.price"
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    consultationDate: 1,
+                    doctorName: 1,
+                    doctorSpecialization: 1,
+                    prescription: 1,
+                    totalAmount: 1
+                }
+            }
+        ]);
+
+        // Format response to match frontend expectations
+        const response = checkoutItems.map(item => ({
+            recordId: item._id,
+            consultationDate: item.consultationDate,
+            doctor: {
+                name: item.doctorName,
+                specialization: item.doctorSpecialization
+            },
+            medicines: item.prescription,
+            totalAmount: item.totalAmount
+        }));
+
+        res.json({
+            success: true,
+            data: response
+        });
+
+    } catch (error) {
+        console.error('Error in getCheckoutMedicines:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching checkout medicines',
+            error: error.message
+        });
+    }
+};
+
+exports.updateCheckoutStatus = async (req, res) => {
+    try {
+        const { recordId, medicineIds, status } = req.body;
+        const userId = req.user.id;
+
+        // Verify user is a patient
+        const user = await User.findById(userId);
+        if (!user || user.role !== 'patient') {
+            return res.status(403).json({
+                success: false,
+                message: 'Only patients can update checkout status'
+            });
+        }
+
+        // Update multiple medicines status
+        const updateResult = await MedicalRecord.updateMany(
+            {
+                _id: recordId,
+                patient: userId,
+                'prescription._id': { $in: medicineIds.map(id => new mongoose.Types.ObjectId(id)) }
+            },
+            {
+                $set: {
+                    'prescription.$[elem].status': status
+                }
+            },
+            {
+                arrayFilters: [{ 'elem._id': { $in: medicineIds.map(id => new mongoose.Types.ObjectId(id)) } }],
+                new: true
+            }
+        );
+
+        if (updateResult.modifiedCount === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No medicines found to update'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: `Successfully updated ${updateResult.modifiedCount} medicines`,
+            modifiedCount: updateResult.modifiedCount
+        });
+
+    } catch (error) {
+        console.error('Error in updateCheckoutStatus:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating checkout status',
+            error: error.message
         });
     }
 };

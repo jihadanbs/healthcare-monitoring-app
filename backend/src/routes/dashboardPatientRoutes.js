@@ -12,4 +12,11 @@ router.get('/medicines/prescribed', authMiddleware, dashboardController.getPresc
 // Route untuk memperbarui status pembelian obat
 router.post('/medicines/:id/status', authMiddleware, dashboardController.updateMedicineStatus);
 
+// Route untuk mendapatkan daftar obat di checkout
+router.get('/checkout/medicines', authMiddleware, dashboardController.getCheckoutMedicines);
+
+// Route untuk update status checkout
+router.post('/checkout/status', authMiddleware, dashboardController.updateCheckoutStatus);
+
+
 module.exports = router;
