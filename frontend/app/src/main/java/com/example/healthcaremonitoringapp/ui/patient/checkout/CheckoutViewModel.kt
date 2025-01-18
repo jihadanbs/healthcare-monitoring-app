@@ -9,7 +9,6 @@ import com.example.healthcaremonitoringapp.models.CheckoutItem
 import com.example.healthcaremonitoringapp.models.Medicine
 import com.example.healthcaremonitoringapp.models.PurchaseStatus
 import com.example.healthcaremonitoringapp.network.DashboardPatientRepository
-import com.example.healthcaremonitoringapp.network.RetrofitClient
 import kotlinx.coroutines.launch
 
 class CheckoutViewModel(private val repository: DashboardPatientRepository) : ViewModel() {
@@ -85,6 +84,32 @@ class CheckoutViewModel(private val repository: DashboardPatientRepository) : Vi
         return !_selectedMedicines.value.isNullOrEmpty() && _totalPrice.value != null && _totalPrice.value!! > 0
     }
 
+//    fun processCheckout() {
+//        viewModelScope.launch {
+//            _checkoutState.value = CheckoutState.Loading
+//            try {
+//                var success = true
+//                _selectedMedicines.value?.forEach { medicine ->
+//                    repository.updateMedicineStatus(medicine.id, PurchaseStatus.PURCHASED)
+//                        .onFailure {
+//                            success = false
+//                            return@forEach
+//                        }
+//                }
+//
+//                if (success) {
+//                    _checkoutState.value = CheckoutState.Success(isCheckoutProcess = true)
+//                    _selectedMedicines.value = emptyList()
+//                    calculateTotal()
+//                } else {
+//                    _checkoutState.value = CheckoutState.Error("Gagal memproses checkout")
+//                }
+//            } catch (e: Exception) {
+//                _checkoutState.value = CheckoutState.Error(e.message ?: "Unknown error")
+//            }
+//        }
+//    }
+
     fun processCheckout() {
         viewModelScope.launch {
             _checkoutState.value = CheckoutState.Loading
@@ -99,9 +124,14 @@ class CheckoutViewModel(private val repository: DashboardPatientRepository) : Vi
                 }
 
                 if (success) {
-                    _checkoutState.value = CheckoutState.Success(isCheckoutProcess = true)
+                    // Bersihkan semua data
                     _selectedMedicines.value = emptyList()
-                    calculateTotal()
+                    _checkoutItems.value = emptyList()
+                    _totalPrice.value = 0
+                    _checkoutState.value = CheckoutState.Success(isCheckoutProcess = true)
+
+                    // Reload data untuk memastikan sinkronisasi dengan server
+                    loadCheckoutItems()
                 } else {
                     _checkoutState.value = CheckoutState.Error("Gagal memproses checkout")
                 }

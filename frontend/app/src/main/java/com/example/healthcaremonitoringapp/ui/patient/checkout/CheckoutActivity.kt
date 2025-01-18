@@ -6,11 +6,13 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -28,6 +30,7 @@ import com.example.healthcaremonitoringapp.network.PatientApiService
 import com.example.healthcaremonitoringapp.network.RetrofitClient
 import com.example.healthcaremonitoringapp.ui.patient.DashboardActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.textfield.TextInputEditText
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -35,7 +38,6 @@ import java.util.Locale
 class CheckoutActivity : AppCompatActivity() {
     private lateinit var viewModel: CheckoutViewModel
     private lateinit var checkoutAdapter: CheckoutAdapter
-    private lateinit var bottomNavigation: BottomNavigationView
     private lateinit var recyclerView: RecyclerView
     private lateinit var totalPriceTextView: TextView
     private lateinit var loadingProgressBar: ProgressBar
@@ -183,7 +185,7 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
     private fun calculateTotalAmount(medicine: Medicine): Int {
-        // Hitung total berdasarkan medicine atau logika lain
+        // Hitung total berdasarkan medicine
         return medicine.price
     }
 
@@ -211,6 +213,104 @@ class CheckoutActivity : AppCompatActivity() {
         items?.let { viewModel.setCheckoutItems(it) }
     }
 
+//    private fun showPaymentDialog() {
+//        val dialogView = LayoutInflater.from(this).inflate(R.layout.payment_dialog, null)
+//        val totalAmountTextView = dialogView.findViewById<TextView>(R.id.totalAmountTextView)
+//        val paymentAmountEditText = dialogView.findViewById<TextInputEditText>(R.id.paymentAmountEditText)
+//        val cancelButton = dialogView.findViewById<Button>(R.id.cancelButton)
+//        val payButton = dialogView.findViewById<Button>(R.id.payButton)
+//
+//        // Set total amount
+//        val totalAmount = viewModel.totalPrice.value ?: 0
+//        totalAmountTextView.text = "Total Pembayaran: Rp ${totalAmount}"
+//
+//        val dialog = AlertDialog.Builder(this)
+//            .setView(dialogView)
+//            .create()
+//
+//        cancelButton.setOnClickListener {
+//            dialog.dismiss()
+//        }
+//
+//        payButton.setOnClickListener {
+//            val paymentAmountStr = paymentAmountEditText.text.toString()
+//            if (paymentAmountStr.isEmpty()) {
+//                paymentAmountEditText.error = "Masukkan jumlah pembayaran"
+//                return@setOnClickListener
+//            }
+//
+//            try {
+//                val paymentAmount = paymentAmountStr.toInt()
+//                if (paymentAmount > totalAmount) {
+//                    paymentAmountEditText.error = "Pembayaran lebih dari total harga"
+//                    return@setOnClickListener
+//                }
+//
+//                if (paymentAmount < totalAmount) {
+//                    paymentAmountEditText.error = "Pembayaran kurang dari total harga"
+//                    return@setOnClickListener
+//                }
+//
+//                // Payment successful
+//                dialog.dismiss()
+//                processCheckout()
+//                Toast.makeText(this@CheckoutActivity, "Pembayaran berhasil", Toast.LENGTH_SHORT).show()
+//            } catch (e: NumberFormatException) {
+//                paymentAmountEditText.error = "Jumlah pembayaran tidak valid"
+//            }
+//        }
+//
+//        dialog.show()
+//    }
+
+    private fun showPaymentDialog() {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.payment_dialog, null)
+        val totalAmountTextView = dialogView.findViewById<TextView>(R.id.totalAmountTextView)
+        val paymentAmountEditText = dialogView.findViewById<TextInputEditText>(R.id.paymentAmountEditText)
+        val cancelButton = dialogView.findViewById<Button>(R.id.cancelButton)
+        val payButton = dialogView.findViewById<Button>(R.id.payButton)
+
+        val totalAmount = viewModel.totalPrice.value ?: 0
+        totalAmountTextView.text = "Total Pembayaran: Rp. ${totalAmount}"
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)  // Prevent dismissal by clicking outside
+            .create()
+
+        cancelButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        payButton.setOnClickListener {
+            val paymentAmountStr = paymentAmountEditText.text.toString()
+            if (paymentAmountStr.isEmpty()) {
+                paymentAmountEditText.error = "Masukkan jumlah pembayaran"
+                return@setOnClickListener
+            }
+
+            try {
+                val paymentAmount = paymentAmountStr.toInt()
+                if (paymentAmount > totalAmount) {
+                    paymentAmountEditText.error = "Pembayaran lebih dari total harga"
+                    return@setOnClickListener
+                }
+
+                if (paymentAmount < totalAmount) {
+                    paymentAmountEditText.error = "Pembayaran kurang dari total harga"
+                    return@setOnClickListener
+                }
+
+                // Payment successful
+                dialog.dismiss()
+                viewModel.processCheckout()  // Ini akan trigger observer di activity
+            } catch (e: NumberFormatException) {
+                paymentAmountEditText.error = "Jumlah pembayaran tidak valid"
+            }
+        }
+
+        dialog.show()
+    }
 
     private fun setupTombolCheckout() {
         checkoutButton.setOnClickListener {
@@ -219,23 +319,8 @@ class CheckoutActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Tampilkan dialog konfirmasi
-            showConfirmationDialog()
+            showPaymentDialog()
         }
-    }
-
-    private fun showConfirmationDialog() {
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Konfirmasi Pembayaran")
-            .setMessage("Apakah Anda yakin ingin melakukan pembayaran?")
-            .setPositiveButton("Ya") { dialog, _ ->
-                dialog.dismiss()
-                processCheckout()
-            }
-            .setNegativeButton("Tidak") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
     }
 
     private fun processCheckout() {
@@ -246,9 +331,10 @@ class CheckoutActivity : AppCompatActivity() {
         tampilkanLoading()
 
         // Proses checkout melalui ViewModel
-        viewModel.processCheckout() // Add parameter to indicate actual checkout
+        viewModel.processCheckout()
     }
 
+    // LANGSUNG POP UP KE CHECKOUT
     private fun amatiPerubahanData() {
         viewModel.selectedMedicines.observe(this) { daftarObat ->
             if (!isDataProcessed) {
@@ -286,18 +372,36 @@ class CheckoutActivity : AppCompatActivity() {
         }
     }
 
+//    private fun handleCheckoutSuccess() {
+//        sembunyikanLoading()
+//
+//        // Tampilkan pesan sukses
+//        val successToast = Toast.makeText(this, "Terima Kasih, Sehat Selalu", Toast.LENGTH_LONG)
+//        successToast.show()
+//
+//        // Delay sebelum kembali ke dashboard
+//        Handler(Looper.getMainLooper()).postDelayed({
+//            setResult(RESULT_OK)
+//            finish()
+//        }, 1500)
+//    }
+
     private fun handleCheckoutSuccess() {
         sembunyikanLoading()
 
         // Tampilkan pesan sukses
-        val successToast = Toast.makeText(this, "Pembayaran berhasil", Toast.LENGTH_LONG)
-        successToast.show()
+        Toast.makeText(this, "Terima Kasih, Sehat Selalu", Toast.LENGTH_LONG).show()
 
         // Delay sebelum kembali ke dashboard
         Handler(Looper.getMainLooper()).postDelayed({
-            setResult(RESULT_OK)
-            finish()
-        }, 1500) // Delay 1.5 detik
+            // Buat intent baru ke DashboardActivity dengan flag yang tepat
+            val intent = Intent(this, DashboardActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                putExtra("CHECKOUT_SUCCESS", true)  // Tambahkan flag untuk refresh di Dashboard
+            }
+            startActivity(intent)
+            finish()  // Tutup CheckoutActivity
+        }, 1500)
     }
 
     private fun handleCheckoutError(message: String) {
