@@ -1,6 +1,7 @@
 package com.example.healthcaremonitoringapp.network
 
 import android.util.Log
+import com.example.healthcaremonitoringapp.models.ApiResponse
 import com.example.healthcaremonitoringapp.models.Appointment
 import com.example.healthcaremonitoringapp.models.CheckoutItem
 import com.example.healthcaremonitoringapp.models.Medicine
@@ -86,6 +87,18 @@ class DashboardPatientRepository(private val apiService: PatientApiService) {
         return response.isSuccessful
     }
 
+    suspend fun processPayment(request: PatientApiService.PaymentRequest): Result<ApiResponse<PatientApiService.TransactionResponse>> =
+        try {
+            val response = apiService.processPayment(request)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(response.errorBody()?.string() ?: "Unknown error"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
     suspend fun updateMedicinePurchaseStatus(medicineId: String, status: String) {
         try {
             val validStatus = when(status) {
@@ -137,21 +150,4 @@ class DashboardPatientRepository(private val apiService: PatientApiService) {
             Result.failure(e)
         }
     }
-
-//    suspend fun updateMedicineStatus(
-//        medicineId: String,
-//        status: PurchaseStatus
-//    ): Result<Medicine> {
-//        return try {
-//            val request = PatientApiService.MedicineStatusRequest(medicineId, status)
-//            val response = apiService.updateMedicineStatus(request)
-//            if (response.isSuccessful && response.body()?.success == true) {
-//                Result.success(response.body()?.medicine!!)
-//            } else {
-//                Result.failure(Exception(response.body()?.message ?: "Unknown error"))
-//            }
-//        } catch (e: Exception) {
-//            Result.failure(e)
-//        }
-//    }
 }

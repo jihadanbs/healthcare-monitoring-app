@@ -150,13 +150,12 @@ class CheckoutActivity : AppCompatActivity() {
                         currentList[currentList.indexOf(existingItem)] = updatedItem
                     }
                 } else {
-                    // Buat CheckoutItem baru jika belum ada
                     val newItem = CheckoutItem(
                         recordId = generateUniqueId(),
-                        consultationDate = getCurrentDate(), // Implementasikan fungsi sesuai kebutuhan
-                        doctor = getCurrentDoctor(),        // Ambil data dokter yang sesuai
+                        consultationDate = getCurrentDate(),
+                        doctor = getCurrentDoctor(),
                         medicines = listOf(selectedMedicine),
-                        totalAmount = calculateTotalAmount(selectedMedicine) // Implementasikan fungsi sesuai kebutuhan
+                        totalAmount = calculateTotalAmount(selectedMedicine)
                     )
                     currentList.add(newItem)
                 }
@@ -189,10 +188,14 @@ class CheckoutActivity : AppCompatActivity() {
         return medicine.price
     }
 
-
+    // Menghapus pesanan obat
     private fun setupRecyclerView() {
-        checkoutAdapter = CheckoutAdapter { obat ->
-            viewModel.removeFromCheckout(obat.id)
+        checkoutAdapter = CheckoutAdapter { medicine ->
+            // Call removeFromCheckout with medicine ID
+            viewModel.removeFromCheckout(medicine.id)
+
+            // Optional: Show toast after successful removal
+            Toast.makeText(this, "Pesanan obat berhasil dihapus", Toast.LENGTH_SHORT).show()
         }
 
         recyclerView.apply {
@@ -213,56 +216,6 @@ class CheckoutActivity : AppCompatActivity() {
         items?.let { viewModel.setCheckoutItems(it) }
     }
 
-//    private fun showPaymentDialog() {
-//        val dialogView = LayoutInflater.from(this).inflate(R.layout.payment_dialog, null)
-//        val totalAmountTextView = dialogView.findViewById<TextView>(R.id.totalAmountTextView)
-//        val paymentAmountEditText = dialogView.findViewById<TextInputEditText>(R.id.paymentAmountEditText)
-//        val cancelButton = dialogView.findViewById<Button>(R.id.cancelButton)
-//        val payButton = dialogView.findViewById<Button>(R.id.payButton)
-//
-//        // Set total amount
-//        val totalAmount = viewModel.totalPrice.value ?: 0
-//        totalAmountTextView.text = "Total Pembayaran: Rp ${totalAmount}"
-//
-//        val dialog = AlertDialog.Builder(this)
-//            .setView(dialogView)
-//            .create()
-//
-//        cancelButton.setOnClickListener {
-//            dialog.dismiss()
-//        }
-//
-//        payButton.setOnClickListener {
-//            val paymentAmountStr = paymentAmountEditText.text.toString()
-//            if (paymentAmountStr.isEmpty()) {
-//                paymentAmountEditText.error = "Masukkan jumlah pembayaran"
-//                return@setOnClickListener
-//            }
-//
-//            try {
-//                val paymentAmount = paymentAmountStr.toInt()
-//                if (paymentAmount > totalAmount) {
-//                    paymentAmountEditText.error = "Pembayaran lebih dari total harga"
-//                    return@setOnClickListener
-//                }
-//
-//                if (paymentAmount < totalAmount) {
-//                    paymentAmountEditText.error = "Pembayaran kurang dari total harga"
-//                    return@setOnClickListener
-//                }
-//
-//                // Payment successful
-//                dialog.dismiss()
-//                processCheckout()
-//                Toast.makeText(this@CheckoutActivity, "Pembayaran berhasil", Toast.LENGTH_SHORT).show()
-//            } catch (e: NumberFormatException) {
-//                paymentAmountEditText.error = "Jumlah pembayaran tidak valid"
-//            }
-//        }
-//
-//        dialog.show()
-//    }
-
     private fun showPaymentDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.payment_dialog, null)
         val totalAmountTextView = dialogView.findViewById<TextView>(R.id.totalAmountTextView)
@@ -275,7 +228,7 @@ class CheckoutActivity : AppCompatActivity() {
 
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
-            .setCancelable(false)  // Prevent dismissal by clicking outside
+            .setCancelable(false)
             .create()
 
         cancelButton.setOnClickListener {
@@ -291,19 +244,17 @@ class CheckoutActivity : AppCompatActivity() {
 
             try {
                 val paymentAmount = paymentAmountStr.toInt()
-                if (paymentAmount > totalAmount) {
-                    paymentAmountEditText.error = "Pembayaran lebih dari total harga"
+                if (paymentAmount != totalAmount) {
+                    paymentAmountEditText.error = "Jumlah pembayaran harus sama dengan total"
                     return@setOnClickListener
                 }
 
-                if (paymentAmount < totalAmount) {
-                    paymentAmountEditText.error = "Pembayaran kurang dari total harga"
-                    return@setOnClickListener
-                }
-
-                // Payment successful
+                // Process payment
                 dialog.dismiss()
-                viewModel.processCheckout()  // Ini akan trigger observer di activity
+                viewModel.processPayment(paymentAmount)
+
+                // Show loading
+                tampilkanLoading()
             } catch (e: NumberFormatException) {
                 paymentAmountEditText.error = "Jumlah pembayaran tidak valid"
             }
@@ -336,13 +287,18 @@ class CheckoutActivity : AppCompatActivity() {
 
     // LANGSUNG POP UP KE CHECKOUT
     private fun amatiPerubahanData() {
+//        viewModel.selectedMedicines.observe(this) { daftarObat ->
+//            if (!isDataProcessed) {
+//                Log.d("CheckoutActivity", "Menerima daftar obat: $daftarObat")
+//                checkoutAdapter.submitList(daftarObat)
+//                updateUIState(daftarObat.isNullOrEmpty())
+//                isDataProcessed = true
+//            }
+//        }
         viewModel.selectedMedicines.observe(this) { daftarObat ->
-            if (!isDataProcessed) {
-                Log.d("CheckoutActivity", "Menerima daftar obat: $daftarObat")
-                checkoutAdapter.submitList(daftarObat)
-                updateUIState(daftarObat.isNullOrEmpty())
-                isDataProcessed = true
-            }
+            Log.d("CheckoutActivity", "Menerima daftar obat: $daftarObat")
+            checkoutAdapter.submitList(daftarObat)
+            updateUIState(daftarObat.isNullOrEmpty())
         }
 
         viewModel.totalPrice.observe(this) { total ->

@@ -22,6 +22,7 @@ class CheckoutAdapter(
         private val priceTextView: TextView = itemView.findViewById(R.id.checkoutPriceTextView)
         private val dosageTextView: TextView = itemView.findViewById(R.id.checkoutDosageTextView)
         private val frequencyTextView: TextView = itemView.findViewById(R.id.checkoutFrequencyTextView)
+        private val removeButton: View = itemView.findViewById(R.id.removeButton)
 
         fun bind(medicine: Medicine) {
             nameTextView.text = medicine.medicine
@@ -29,7 +30,7 @@ class CheckoutAdapter(
             frequencyTextView.text = "Frekuensi: ${medicine.frequency}"
             priceTextView.text = "Harga: Rp. ${medicine.price}"
 
-            itemView.findViewById<View>(R.id.removeButton).setOnClickListener {
+            removeButton.setOnClickListener {
                 onRemoveClick(medicine)
             }
         }

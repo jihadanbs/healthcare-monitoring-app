@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const MedicalRecord = require('../models/MedicalRecord');
 const Consultation = require('../models/Consultation');
 const Notification = require('../models/Notification');
+const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 
 exports.getDashboardData = async (req, res) => {
@@ -286,6 +287,95 @@ exports.updateCheckoutStatus = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error updating checkout status',
+            error: error.message
+        });
+    }
+};
+
+exports.processPayment = async (req, res) => {
+    try {
+        const { 
+            medicalRecordId, 
+            prescriptionIds, 
+            totalAmount, 
+            paymentAmount 
+        } = req.body;
+        
+        const userId = req.user.id;
+
+        // Validasi pembayaran
+        if (paymentAmount !== totalAmount) {
+            return res.status(400).json({
+                success: false,
+                message: 'Jumlah pembayaran tidak sesuai dengan total'
+            });
+        }
+
+        // Ambil data medical record
+        const medicalRecord = await MedicalRecord.findById(medicalRecordId);
+        if (!medicalRecord) {
+            return res.status(404).json({
+                success: false,
+                message: 'Medical record tidak ditemukan'
+            });
+        }
+
+        // Filter obat yang akan dibayar
+        const selectedMedicines = medicalRecord.prescription.filter(p => 
+            prescriptionIds.includes(p._id.toString())
+        );
+
+        if (selectedMedicines.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Obat tidak ditemukan'
+            });
+        }
+
+        // Buat transaksi baru
+        const transaction = new Transaction({
+            patient: userId,
+            medicalRecord: medicalRecordId,
+            medicines: selectedMedicines.map(med => ({
+                medicineId: med._id,
+                name: med.medicine,
+                quantity: 1,
+                price: med.price
+            })),
+            totalAmount,
+            paymentAmount,
+            paymentStatus: 'COMPLETED'
+        });
+
+        // Simpan transaksi
+        await transaction.save();
+
+        // Update status obat menjadi PURCHASED
+        await MedicalRecord.updateOne(
+            { _id: medicalRecordId },
+            { 
+                $set: { 
+                    'prescription.$[elem].status': 'PURCHASED'
+                }
+            },
+            {
+                arrayFilters: [
+                    { 'elem._id': { $in: prescriptionIds.map(id => new mongoose.Types.ObjectId(id)) } }
+                ]
+            }
+        );
+
+        res.json({
+            success: true,
+            message: 'Pembayaran berhasil',
+            data: transaction
+        });
+
+    } catch (error) {
+        console.error('Error in processPayment:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error processing payment',
             error: error.message
         });
     }

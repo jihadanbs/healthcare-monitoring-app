@@ -18,5 +18,8 @@ router.get('/checkout/medicines', authMiddleware, dashboardController.getCheckou
 // Route untuk update status checkout
 router.post('/checkout/status', authMiddleware, dashboardController.updateCheckoutStatus);
 
+// Route untuk memproses pembayaran
+router.post('/checkout/payment', authMiddleware, dashboardController.processPayment);
+
 
 module.exports = router;

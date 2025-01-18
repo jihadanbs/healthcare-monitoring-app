@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -43,10 +42,6 @@ class DashboardActivity : AppCompatActivity() {
 
         // Observe LiveData
         observeDashboardData()
-
-//        findViewById<Button>(R.id.addMedicineButton).setOnClickListener {
-//            showAddMedicineDialog()
-//        }
 
         // error handling untuk viewModel
         viewModel.error.observe(this) { errorMessage ->
@@ -90,19 +85,6 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun setupMedicineList() {
-        // Tambahkan parameter onStatusChangeListener di sini
-//        medicineListAdapter = MedicineListAdapter { medicine, status ->
-//            // Panggil metode update status di ViewModel
-//            viewModel.updateMedicinePurchaseStatus(medicine.id, status.name)
-//        }
-//
-//        medicineRecyclerView.layoutManager = LinearLayoutManager(this)
-//        medicineRecyclerView.adapter = medicineListAdapter
-//
-//        viewModel.prescribedMedicines.observe(this) { medicines ->
-//            medicineListAdapter.submitList(medicines)
-//        }
-
         medicineListAdapter = MedicineListAdapter(
             onStatusChangeListener = { medicine, status ->
                 viewModel.updateMedicinePurchaseStatus(medicine.id, status.name)
@@ -117,8 +99,6 @@ class DashboardActivity : AppCompatActivity() {
 
                 // Gunakan startActivity dengan requestCode untuk bisa menerima hasil
                 startActivityForResult(intent, CHECKOUT_REQUEST_CODE)
-                // Atau jika menggunakan activity result API yang baru:
-                // checkoutLauncher.launch(intent)
             }
         )
 
@@ -137,12 +117,10 @@ class DashboardActivity : AppCompatActivity() {
     private fun observeDashboardData() {
         viewModel.healthSummary.observe(this) { summary ->
             // Update health summary UI elements
-            // For example: findViewById<TextView>(R.id.healthSummaryTextView).text = summary
         }
 
         viewModel.notifications.observe(this) { notifications ->
             // Handle notifications
-            // You might want to show a badge or update a notification list
         }
     }
 
@@ -169,7 +147,8 @@ class DashboardActivity : AppCompatActivity() {
                         dosage = dosage,
                         frequency = frequency,
                         status = PurchaseStatus.NOT_PURCHASED,
-                        price = price
+                        price = price,
+                        medicalRecordId = ""
                     )
                     // Panggil ViewModel untuk menambahkan data
                     viewModel.addMedicineToList(newMedicine)

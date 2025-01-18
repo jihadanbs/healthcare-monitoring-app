@@ -9,7 +9,8 @@ data class Medicine(
     val dosage: String,
     val frequency: String,
     val status: PurchaseStatus,
-    val price: Int
+    val price: Int,
+    val medicalRecordId: String
 ) : Parcelable {
     // Konstruktor untuk membaca dari Parcel
     constructor(parcel: Parcel) : this(
@@ -18,7 +19,8 @@ data class Medicine(
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         PurchaseStatus.valueOf(parcel.readString() ?: PurchaseStatus.NOT_PURCHASED.name),
-        parcel.readInt()
+        parcel.readInt(),
+        parcel.readString() ?: ""
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -55,15 +57,6 @@ data class Medicine(
         val specialization: String?
     )
 }
-
-//data class Medicine(
-//    val id: String,
-//    val medicine: String,
-//    val dosage: String,
-//    val frequency: String,
-//    val status: PurchaseStatus,
-//    val price: Int
-//)
 
 enum class PurchaseStatus {
     NOT_PURCHASED,
