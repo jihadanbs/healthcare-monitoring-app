@@ -36,6 +36,24 @@ data class Medicine(
         override fun createFromParcel(parcel: Parcel): Medicine = Medicine(parcel)
         override fun newArray(size: Int): Array<Medicine?> = arrayOfNulls(size)
     }
+
+    data class CheckoutResponse(
+        val success: Boolean,
+        val data: List<CheckoutItem>
+    )
+
+    data class CheckoutItem(
+        val recordId: String,
+        val consultationDate: String,
+        val doctor: Doctor,
+        val medicines: List<Medicine>,
+        val totalAmount: Int
+    )
+
+    data class Doctor(
+        val name: String,
+        val specialization: String?
+    )
 }
 
 //data class Medicine(

@@ -5,108 +5,108 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.healthcaremonitoringapp.models.CheckoutItem
 import com.example.healthcaremonitoringapp.models.Medicine
 import com.example.healthcaremonitoringapp.models.PurchaseStatus
 import com.example.healthcaremonitoringapp.network.DashboardPatientRepository
 import com.example.healthcaremonitoringapp.network.RetrofitClient
 import kotlinx.coroutines.launch
 
-class CheckoutViewModel : ViewModel() {
-    private val repository = DashboardPatientRepository(RetrofitClient.apiService)
+class CheckoutViewModel(private val repository: DashboardPatientRepository) : ViewModel() {
+    private val _checkoutItems = MutableLiveData<List<CheckoutItem>>()
+    val checkoutItems: LiveData<List<CheckoutItem>> = _checkoutItems
 
-    private val _checkoutItems = MutableLiveData<List<Medicine>>(emptyList())
-    val checkoutItems: LiveData<List<Medicine>> = _checkoutItems
+    private val _selectedMedicines = MutableLiveData<List<Medicine>>()
+    val selectedMedicines: LiveData<List<Medicine>> = _selectedMedicines
 
-    private val _totalPrice = MutableLiveData(0)
-    val totalPrice: LiveData<Int> = _totalPrice
-
-    private val _checkoutStatus = MutableLiveData<CheckoutState>()
-    val checkoutStatus: LiveData<CheckoutState> = _checkoutStatus
+    private val _checkoutState = MutableLiveData<CheckoutState>(CheckoutState.Initial)
+    val checkoutState: LiveData<CheckoutState> = _checkoutState
 
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
-    sealed class CheckoutState {
-        object Initial : CheckoutState()
-        object Loading : CheckoutState()
-        object Success : CheckoutState()
-        data class Error(val message: String) : CheckoutState()
+    private val _totalPrice = MutableLiveData(0)
+    val totalPrice: LiveData<Int> = _totalPrice
+
+    init {
+        loadCheckoutItems()
+    }
+
+    // Menggantikan loadInProgressMedicines dengan loadCheckoutItems
+    fun loadInProgressMedicines() {
+        loadCheckoutItems()
+    }
+
+    fun loadCheckoutItems() {
+        viewModelScope.launch {
+            _checkoutState.value = CheckoutState.Loading
+            try {
+                repository.getCheckoutMedicines()
+                    .onSuccess { response ->
+                        val medicines = response.flatMap { item -> item.medicines }
+                        _selectedMedicines.value = medicines
+                        _checkoutItems.value = response
+                        calculateTotal()
+                        _checkoutState.value = CheckoutState.Success(isCheckoutProcess = false)
+                    }
+                    .onFailure { exception ->
+                        _error.value = exception.message
+                        _checkoutState.value = CheckoutState.Error(exception.message ?: "Unknown error")
+                    }
+            } catch (e: Exception) {
+                _error.value = e.message
+                _checkoutState.value = CheckoutState.Error(e.message ?: "Unknown error")
+            }
+        }
     }
 
     fun setCheckoutItems(items: List<Medicine>) {
-        _checkoutItems.value = items
-        updateTotalPrice()
-    }
-
-    private fun updateTotalPrice() {
-        _totalPrice.value = _checkoutItems.value?.sumOf { it.price } ?: 0
-    }
-
-
-    fun addToCheckout(medicine: Medicine) {
-        val currentItems = _checkoutItems.value?.toMutableList() ?: mutableListOf()
-        if (!currentItems.any { it.id == medicine.id }) {
-            currentItems.add(medicine)
-            _checkoutItems.value = currentItems
-            calculateTotal()
-        }
-    }
-
-    fun addMultipleToCheckout(medicines: List<Medicine>) {
-        val currentItems = _checkoutItems.value?.toMutableList() ?: mutableListOf()
-        val newItems = medicines.filter { medicine ->
-            !currentItems.any { it.id == medicine.id }
-        }
-        if (newItems.isNotEmpty()) {
-            currentItems.addAll(newItems)
-            _checkoutItems.value = currentItems
-            calculateTotal()
-        }
+        _selectedMedicines.value = items
+        calculateTotal()
     }
 
     fun removeFromCheckout(medicineId: String) {
-        val currentItems = _checkoutItems.value?.toMutableList() ?: mutableListOf()
-        if (currentItems.removeIf { it.id == medicineId }) {
-            _checkoutItems.value = currentItems
-            calculateTotal()
+        viewModelScope.launch {
+            try {
+                repository.updateMedicineStatus(medicineId, PurchaseStatus.NOT_PURCHASED)
+                    .onSuccess {
+                        loadCheckoutItems() // Reload data after successful update
+                    }
+                    .onFailure { exception ->
+                        _error.value = exception.message
+                    }
+            } catch (e: Exception) {
+                _error.value = e.message
+            }
         }
     }
 
-    private fun calculateTotal() {
-        val total = _checkoutItems.value?.sumOf { it.price } ?: 0
-        _totalPrice.value = total
+    fun validateCheckout(): Boolean {
+        return !_selectedMedicines.value.isNullOrEmpty() && _totalPrice.value != null && _totalPrice.value!! > 0
     }
 
     fun processCheckout() {
         viewModelScope.launch {
+            _checkoutState.value = CheckoutState.Loading
             try {
-                _checkoutStatus.value = CheckoutState.Loading
-
-                val items = _checkoutItems.value ?: emptyList()
-                if (items.isEmpty()) {
-                    _checkoutStatus.value = CheckoutState.Error("No items in checkout")
-                    return@launch
+                var success = true
+                _selectedMedicines.value?.forEach { medicine ->
+                    repository.updateMedicineStatus(medicine.id, PurchaseStatus.PURCHASED)
+                        .onFailure {
+                            success = false
+                            return@forEach
+                        }
                 }
 
-                // Process all medicines in parallel
-                items.forEach { medicine ->
-                    try {
-                        repository.updateMedicinePurchaseStatus(
-                            medicine.id,
-                            PurchaseStatus.IN_PROGRESS.name
-                        )
-                    } catch (e: Exception) {
-                        _error.value = "Failed to update status for ${medicine.medicine}: ${e.message}"
-                    }
+                if (success) {
+                    _checkoutState.value = CheckoutState.Success(isCheckoutProcess = true)
+                    _selectedMedicines.value = emptyList()
+                    calculateTotal()
+                } else {
+                    _checkoutState.value = CheckoutState.Error("Gagal memproses checkout")
                 }
-
-                // Clear checkout after successful processing
-                _checkoutItems.value = emptyList()
-                _totalPrice.value = 0
-                _checkoutStatus.value = CheckoutState.Success
-
             } catch (e: Exception) {
-                _checkoutStatus.value = CheckoutState.Error(e.message ?: "Unknown error occurred")
+                _checkoutState.value = CheckoutState.Error(e.message ?: "Unknown error")
             }
         }
     }
@@ -115,9 +115,14 @@ class CheckoutViewModel : ViewModel() {
         _error.value = null
     }
 
-    fun validateCheckout(): Boolean {
-        return !_checkoutItems.value.isNullOrEmpty() &&
-                _totalPrice.value != null &&
-                _totalPrice.value!! > 0
+    private fun calculateTotal() {
+        _totalPrice.value = _selectedMedicines.value?.sumOf { it.price } ?: 0
+    }
+
+    sealed class CheckoutState {
+        object Initial : CheckoutState()
+        object Loading : CheckoutState()
+        data class Success(val isCheckoutProcess: Boolean = false) : CheckoutState()
+        data class Error(val message: String) : CheckoutState()
     }
 }

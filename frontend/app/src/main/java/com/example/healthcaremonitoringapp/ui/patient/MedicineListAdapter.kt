@@ -45,7 +45,7 @@ class MedicineListAdapter(
             nameTextView.text = medicine.medicine
             dosageTextView.text = "Dosis: ${medicine.dosage}"
             frequencyTextView.text = "Frekuensi: ${medicine.frequency}"
-            priceTextView.text = "Harga: Rp.${medicine.price}"
+            priceTextView.text = "Harga: Rp. ${medicine.price}"
 
             // Set purchase status text and color
             when (medicine.status) {
@@ -79,12 +79,16 @@ class MedicineListAdapter(
                 try {
                     when (medicine.status) {
                         PurchaseStatus.NOT_PURCHASED -> {
+                            // Show toast for adding to cart
                             Toast.makeText(
                                 itemView.context,
-                                "Memulai proses pembelian obat ${medicine.medicine}",
+                                "Obat ${medicine.medicine} sudah masuk keranjang",
                                 Toast.LENGTH_SHORT
                             ).show()
+
+                            // Update status and navigate to checkout
                             onStatusChangeListener(medicine, PurchaseStatus.IN_PROGRESS)
+                            onCheckoutClick(medicine)
                         }
                         PurchaseStatus.IN_PROGRESS -> {
                             Toast.makeText(
@@ -95,7 +99,7 @@ class MedicineListAdapter(
                             onStatusChangeListener(medicine, PurchaseStatus.PURCHASED)
                         }
                         PurchaseStatus.PURCHASED -> {
-                            // Button sudah disabled untuk status ini
+                            // Button already disabled for this status
                         }
                     }
                 } catch (e: Exception) {
@@ -105,10 +109,6 @@ class MedicineListAdapter(
                         Toast.LENGTH_LONG
                     ).show()
                 }
-
-                Log.d("MedicineListAdapter", "Checkout clicked for medicine: $medicine")
-                Log.d("MedicineListAdapter", "Medicine details - ID: ${medicine.id}, Name: ${medicine.medicine}")
-                onCheckoutClick(medicine)
             }
         }
     }

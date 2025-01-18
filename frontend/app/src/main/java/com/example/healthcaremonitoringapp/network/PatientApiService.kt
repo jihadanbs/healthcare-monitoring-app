@@ -1,8 +1,10 @@
 package com.example.healthcaremonitoringapp.network
 
 import com.example.healthcaremonitoringapp.models.Appointment
+import com.example.healthcaremonitoringapp.models.CheckoutItem
 import com.example.healthcaremonitoringapp.models.Medicine
 import com.example.healthcaremonitoringapp.models.Notification
+import com.example.healthcaremonitoringapp.models.PurchaseStatus
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -32,6 +34,12 @@ interface PatientApiService {
 
     data class UpdateStatusResponse(val message: String, val prescription: Medicine)
 
+    @GET("dashboard/checkout/medicines")
+    suspend fun getCheckoutMedicines(): Response<CheckoutResponse>
+
+    @GET("dashboard/medicines/in-progress")
+    suspend fun getMedicinesInProgress(): Response<List<Medicine>>
+
     @POST("dashboard/checkout/process")
     suspend fun processCheckout(@Body checkoutRequest: CheckoutRequest): Response<CheckoutResponse>
 
@@ -42,6 +50,21 @@ interface PatientApiService {
 
     data class CheckoutResponse(
         val success: Boolean,
-        val message: String
+        val message: String,
+        val data: List<CheckoutItem>
+    )
+
+    @POST("dashboard/medicines/update-status")
+    suspend fun updateMedicineStatus(@Body statusRequest: MedicineStatusRequest): Response<MedicineStatusResponse>
+
+    data class MedicineStatusRequest(
+        val medicineId: String,
+        val status: PurchaseStatus
+    )
+
+    data class MedicineStatusResponse(
+        val success: Boolean,
+        val message: String,
+        val medicine: Medicine
     )
 }

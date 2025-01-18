@@ -28,6 +28,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:text="Keranjang Obat"
+                    android:textColor="#2C7BBE"
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
@@ -57,6 +58,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:backgroundTint="#2C7BBE"
+                        android:textColor="#FFFFFF"
                         android:text="Proses Pembayaran" />
                 </LinearLayout>
 

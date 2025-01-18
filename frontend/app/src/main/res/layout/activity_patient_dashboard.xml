@@ -102,14 +102,14 @@
                     android:layout_marginBottom="16dp" />
 
                 <!-- Add Medicine Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/addMedicineButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Tambah Obat ke Daftar"
-                    android:textColor="#FFFFFF"
-                    android:backgroundTint="#2C7BBE"
-                    android:layout_marginBottom="16dp" />
+<!--                <com.google.android.material.button.MaterialButton-->
+<!--                    android:id="@+id/addMedicineButton"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Tambah Obat ke Daftar"-->
+<!--                    android:textColor="#FFFFFF"-->
+<!--                    android:backgroundTint="#2C7BBE"-->
+<!--                    android:layout_marginBottom="16dp" />-->
             </LinearLayout>
         </FrameLayout>
     </ScrollView>

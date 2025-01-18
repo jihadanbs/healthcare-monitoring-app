@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Health Monitoring</string>
+    <string name="total_price_format">Total Harga: Rp. %d</string>
 </resources>

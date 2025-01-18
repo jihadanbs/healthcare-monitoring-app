@@ -44,9 +44,9 @@ class DashboardActivity : AppCompatActivity() {
         // Observe LiveData
         observeDashboardData()
 
-        findViewById<Button>(R.id.addMedicineButton).setOnClickListener {
-            showAddMedicineDialog()
-        }
+//        findViewById<Button>(R.id.addMedicineButton).setOnClickListener {
+//            showAddMedicineDialog()
+//        }
 
         // error handling untuk viewModel
         viewModel.error.observe(this) { errorMessage ->

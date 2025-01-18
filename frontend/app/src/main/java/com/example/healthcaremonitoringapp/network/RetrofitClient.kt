@@ -5,7 +5,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "https://7481-114-10-150-25.ngrok-free.app/api/"
+    private const val BASE_URL = "https://20c6-114-10-153-28.ngrok-free.app/api/"
 
 //    private val okHttpClient = OkHttpClient.Builder()
 //        .addInterceptor { chain ->
@@ -23,6 +23,10 @@ object RetrofitClient {
     // Fungsi untuk mengatur token
     fun setAuthToken(token: String) {
         authToken = token
+    }
+
+    fun <T> create(service: Class<T>): T {
+        return retrofit.create(service)
     }
 
     private val okHttpClient = OkHttpClient.Builder()

@@ -14,6 +14,27 @@ class CheckoutAdapter(
     private val onRemoveClick: (Medicine) -> Unit
 ) : ListAdapter<Medicine, CheckoutAdapter.CheckoutViewHolder>(CheckoutDiffCallback()) {
 
+    class CheckoutViewHolder(
+        itemView: View,
+        private val onRemoveClick: (Medicine) -> Unit
+    ) : RecyclerView.ViewHolder(itemView) {
+        private val nameTextView: TextView = itemView.findViewById(R.id.checkoutMedicineNameTextView)
+        private val priceTextView: TextView = itemView.findViewById(R.id.checkoutPriceTextView)
+        private val dosageTextView: TextView = itemView.findViewById(R.id.checkoutDosageTextView)
+        private val frequencyTextView: TextView = itemView.findViewById(R.id.checkoutFrequencyTextView)
+
+        fun bind(medicine: Medicine) {
+            nameTextView.text = medicine.medicine
+            dosageTextView.text = "Dosis: ${medicine.dosage}"
+            frequencyTextView.text = "Frekuensi: ${medicine.frequency}"
+            priceTextView.text = "Harga: Rp. ${medicine.price}"
+
+            itemView.findViewById<View>(R.id.removeButton).setOnClickListener {
+                onRemoveClick(medicine)
+            }
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CheckoutViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_checkout, parent, false)
@@ -22,23 +43,6 @@ class CheckoutAdapter(
 
     override fun onBindViewHolder(holder: CheckoutViewHolder, position: Int) {
         holder.bind(getItem(position))
-    }
-
-    class CheckoutViewHolder(
-        itemView: View,
-        private val onRemoveClick: (Medicine) -> Unit
-    ) : RecyclerView.ViewHolder(itemView) {
-        private val nameTextView: TextView = itemView.findViewById(R.id.checkoutMedicineNameTextView)
-        private val priceTextView: TextView = itemView.findViewById(R.id.checkoutPriceTextView)
-
-        fun bind(medicine: Medicine) {
-            nameTextView.text = medicine.medicine
-            priceTextView.text = "Rp ${medicine.price}"
-
-            itemView.findViewById<View>(R.id.removeButton).setOnClickListener {
-                onRemoveClick(medicine)
-            }
-        }
     }
 
     class CheckoutDiffCallback : DiffUtil.ItemCallback<Medicine>() {
