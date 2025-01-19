@@ -2,6 +2,7 @@ package com.example.healthcaremonitoringapp.ui.patient
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcaremonitoringapp.R
 import com.example.healthcaremonitoringapp.models.Medicine
 import com.example.healthcaremonitoringapp.models.PurchaseStatus
+import com.example.healthcaremonitoringapp.ui.auth.ProfileActivity
 import com.example.healthcaremonitoringapp.ui.patient.checkout.CheckoutActivity
 import com.example.healthcaremonitoringapp.viewmodels.DashboardPatientViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -49,6 +51,22 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottomNavigation)
+
+        // Mengatur warna teks item menu
+        val colorStateList = ColorStateList(
+            arrayOf(
+                intArrayOf(android.R.attr.state_checked), // Status item yang dipilih
+                intArrayOf(-android.R.attr.state_checked) // Status item yang tidak dipilih
+            ),
+            intArrayOf(
+                resources.getColor(R.color.ungu, theme), // Warna untuk item yang dipilih
+                resources.getColor(R.color.blue, theme)  // Warna untuk item yang tidak dipilih
+            )
+        )
+        bottomNavigation.itemTextColor = colorStateList
+        bottomNavigation.itemIconTintList = colorStateList
+
+        // Listener untuk item menu
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_home -> true
@@ -57,7 +75,7 @@ class DashboardActivity : AppCompatActivity() {
                     true
                 }
                 R.id.navigation_account -> {
-                    // Handle account navigation
+                    startActivity(Intent(this, ProfileActivity::class.java))
                     true
                 }
                 else -> false

@@ -3,4 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="blue">#2C7BBE</color>
+    <color name="ungu">#CDC1FF</color>
+    <color name="selected_background">#E0F7FA</color>
+    <color name="deselected_background">#FFFFFF</color>
 </resources>

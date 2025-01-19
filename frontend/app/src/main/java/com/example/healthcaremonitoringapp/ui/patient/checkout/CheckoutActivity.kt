@@ -1,6 +1,7 @@
 package com.example.healthcaremonitoringapp.ui.patient.checkout
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -28,6 +29,7 @@ import com.example.healthcaremonitoringapp.models.Medicine
 import com.example.healthcaremonitoringapp.network.DashboardPatientRepository
 import com.example.healthcaremonitoringapp.network.PatientApiService
 import com.example.healthcaremonitoringapp.network.RetrofitClient
+import com.example.healthcaremonitoringapp.ui.auth.ProfileActivity
 import com.example.healthcaremonitoringapp.ui.patient.DashboardActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.textfield.TextInputEditText
@@ -71,15 +73,31 @@ class CheckoutActivity : AppCompatActivity() {
         setupTombolCheckout()
         tanganiDataMasuk()
 
-        val bottomNavigation: BottomNavigationView = findViewById(R.id.bottomNavigation)
-        bottomNavigation.setOnNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
+        val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottomNavigation)
+
+        // Mengatur warna teks item menu
+        val colorStateList = ColorStateList(
+            arrayOf(
+                intArrayOf(android.R.attr.state_checked), // Status item yang dipilih
+                intArrayOf(-android.R.attr.state_checked) // Status item yang tidak dipilih
+            ),
+            intArrayOf(
+                resources.getColor(R.color.ungu, theme), // Warna untuk item yang dipilih
+                resources.getColor(R.color.blue, theme)  // Warna untuk item yang tidak dipilih
+            )
+        )
+        bottomNavigation.itemTextColor = colorStateList
+        bottomNavigation.itemIconTintList = colorStateList
+
+        bottomNavigation.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
                 R.id.navigation_home -> {
                     startActivity(Intent(this, DashboardActivity::class.java))
                     true
                 }
                 R.id.navigation_checkout -> true
                 R.id.navigation_account -> {
+                    startActivity(Intent(this, ProfileActivity::class.java))
                     true
                 }
 

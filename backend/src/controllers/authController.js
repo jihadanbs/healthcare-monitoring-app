@@ -113,7 +113,21 @@ class AuthController {
 
     static async updateUserProfile(req, res) {
         try {
-            const { name, email, profile } = req.body;
+            const { name, email, password, profile } = req.body;
+            
+            // Buat object untuk update data
+            const updateFields = {
+                name,
+                email,
+                profile
+            };
+    
+            // Jika password baru diberikan, hash password tersebut
+            if (password) {
+                const salt = await bcrypt.genSalt(10);
+                const hashedPassword = await bcrypt.hash(password, salt);
+                updateFields.password = hashedPassword;
+            }
             
             // Cek apakah email baru sudah digunakan (jika email diubah)
             if (email) {
@@ -127,25 +141,19 @@ class AuthController {
                     });
                 }
             }
-
+    
             const updatedUser = await User.findByIdAndUpdate(
                 req.user.id,
-                {
-                    $set: {
-                        name: name,
-                        email: email,
-                        profile: profile
-                    }
-                },
+                { $set: updateFields },
                 { new: true, runValidators: true }
             ).select('-password');
-
+    
             if (!updatedUser) {
                 return res.status(404).json({ 
                     message: 'User tidak ditemukan' 
                 });
             }
-
+    
             res.json({
                 message: 'Profile berhasil diperbarui',
                 user: updatedUser
