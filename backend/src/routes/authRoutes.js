@@ -11,18 +11,15 @@ router.post('/register', AuthController.register);
 router.post('/login', AuthController.login);
 
 // Rute Profile (memerlukan autentikasi)
-router.get('/profile', 
-    authMiddleware, 
-    AuthController.getUserProfile
-  );
+router.get('/profile', authMiddleware, AuthController.getUserProfile);
+
+// Rute Update Profile
+router.put('/profile', authMiddleware, AuthController.updateUserProfile);
+
+// Rute Delete User
+router.delete('/profile', authMiddleware, AuthController.deleteUser);
 
 // Rute khusus dokter
-router.get('/doctor-only', 
-    authMiddleware, 
-    roleMiddleware(['doctor']), 
-    (req, res) => {
-      res.json({ message: 'Ini adalah rute khusus dokter' });
-    }
-);
-  
-  module.exports = router;
+router.get('/doctor-only', authMiddleware, roleMiddleware(['doctor']), (req, res) => { res.json({ message: 'Ini adalah rute khusus dokter' }); });
+
+module.exports = router;

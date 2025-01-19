@@ -2,7 +2,6 @@ const MedicalRecord = require('../models/MedicalRecord');
 const Appointment = require('../models/Appointment');
 const User = require('../models/User');
 
-// Get all patients for a doctor
 exports.getPatients = async (req, res) => {
     try {
         const medicalRecords = await MedicalRecord.find({ doctor: req.user._id })
@@ -22,7 +21,6 @@ exports.getPatients = async (req, res) => {
     }
 };
 
-// Get patient's medical history
 exports.getPatientHistory = async (req, res) => {
     try {
         const { patientId } = req.params;
@@ -45,7 +43,6 @@ exports.getPatientHistory = async (req, res) => {
     }
 };
 
-// Add new medical record
 exports.addMedicine = async (req, res) => {
     try {
         // Ambil ID dokter dari req.user yang sudah di-decode oleh middleware
@@ -136,7 +133,6 @@ exports.addMedicine = async (req, res) => {
     }
 };
 
-// Get patient's medical records
 exports.getPatientMedicalRecords = async (req, res) => {
     try {
         const { patientId } = req.params;
@@ -170,11 +166,10 @@ exports.getPatientMedicalRecords = async (req, res) => {
     }
 };
 
-// Update medical record
 exports.updateMedicalRecord = async (req, res) => {
     try {
         const { patientId, recordId } = req.params;
-        const doctorId = req.user.id; // Menggunakan req.user.id bukan req.user._id
+        const doctorId = req.user.id;
         const updateData = req.body;
 
         console.log('Debug Info:', {
@@ -243,11 +238,10 @@ exports.updateMedicalRecord = async (req, res) => {
     }
 };
 
-// Delete medical record
 exports.deleteMedicalRecord = async (req, res) => {
     try {
         const { patientId, recordId } = req.params;
-        const doctorId = req.user.id; // Menggunakan req.user.id dari token JWT
+        const doctorId = req.user.id;
 
         // Cari medical record dan pastikan sesuai dengan dokter dan pasien
         const medicalRecord = await MedicalRecord.findOne({
@@ -281,7 +275,6 @@ exports.deleteMedicalRecord = async (req, res) => {
     }
 };
 
-// Update prescription status
 exports.updatePrescriptionStatus = async (req, res) => {
     try {
         const { recordId, prescriptionId } = req.params;
@@ -321,7 +314,6 @@ exports.updatePrescriptionStatus = async (req, res) => {
     }
 };
 
-// Get patient's appointments
 exports.getPatientAppointments = async (req, res) => {
     try {
         const { patientId } = req.params;
@@ -355,7 +347,6 @@ exports.getPatientAppointments = async (req, res) => {
     }
 };
 
-// Get doctor's appointments
 exports.getDoctorAppointments = async (req, res) => {
     try {
         const appointments = await Appointment.find({
@@ -377,7 +368,6 @@ exports.getDoctorAppointments = async (req, res) => {
     }
 };
 
-// Update appointment status
 exports.updateAppointmentStatus = async (req, res) => {
     try {
         const { appointmentId } = req.params;
