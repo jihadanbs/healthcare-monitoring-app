@@ -167,7 +167,7 @@ const DoctorDashboard = () => {
     <div className="min-h-screen bg-gray-100">
       {/* Sidebar */}
       <div className="fixed left-0 top-0 h-full w-64 bg-indigo-800 text-white p-6">
-        <h2 className="text-2xl font-bold mb-8">Doctor Portal</h2>
+        <h2 className="text-2xl font-bold mb-8">Portal Dokter</h2>
         <nav className="space-y-4">
           <button 
             onClick={() => setActiveView('overview')}

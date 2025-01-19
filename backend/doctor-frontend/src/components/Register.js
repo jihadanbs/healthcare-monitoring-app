@@ -37,12 +37,12 @@ const Register = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-400 to-blue-500 p-6">
       <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md transform hover:scale-105 transition-transform duration-300">
-        <h2 className="text-4xl font-extrabold text-center mb-8 text-gray-900">Create Account</h2>
+        <h2 className="text-4xl font-extrabold text-center mb-8 text-gray-900">Membuat Akun</h2>
         <form onSubmit={handleSubmit} className="space-y-6" autoComplete='off'>
           {/* Name Input */}
           <div className="relative">
             <FaUser className="absolute left-4 top-3 text-gray-400" />
-            <input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} required className="pl-12 pr-4 py-3 border rounded-xl w-full focus:ring-2 focus:ring-green-400 focus:border-transparent hover:border-green-300 transition"/>
+            <input type="text" name="name" placeholder="Nama Lengkap" value={formData.name} onChange={handleChange} required className="pl-12 pr-4 py-3 border rounded-xl w-full focus:ring-2 focus:ring-green-400 focus:border-transparent hover:border-green-300 transition"/>
           </div>
           
           {/* Email Input */}

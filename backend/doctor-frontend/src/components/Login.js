@@ -40,7 +40,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 to-red-600 p-6">
       <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md transform hover:scale-105 transition-transform duration-300">
-        <h2 className="text-4xl font-extrabold text-center mb-8 text-gray-900">Welcome Back</h2>
+        <h2 className="text-4xl font-extrabold text-center mb-8 text-gray-900">Selamat Datang</h2>
         <form onSubmit={handleSubmit} className="space-y-6" autoComplete='off'>
           <div className="relative">
             <FaUser className="absolute left-4 top-3 text-gray-400" />
