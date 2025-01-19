@@ -4,13 +4,12 @@ const User = require('../models/User');
 
 exports.getPatients = async (req, res) => {
     try {
-        const medicalRecords = await MedicalRecord.find({ doctor: req.user._id })
-            .populate('patient', 'name email profile')
-            .distinct('patient');
+        // Hanya memanggil semua pengguna dengan role "patient"
+        const patients = await User.find({ role: 'patient' }).select('name email profile');
 
         res.status(200).json({
             success: true,
-            patients: medicalRecords
+            patients
         });
     } catch (error) {
         res.status(500).json({
@@ -133,36 +132,75 @@ exports.addMedicine = async (req, res) => {
     }
 };
 
-exports.getPatientMedicalRecords = async (req, res) => {
+exports.getDoctorMedicalRecords = async (req, res) => {
     try {
-        const { patientId } = req.params;
+        const doctorId = req.user.id; // Perhatikan di sini, kita gunakan req.user.id bukan req.user._id
+        console.log('ID Dokter dari token:', doctorId);
         
-        // Validasi pasien
-        const patient = await User.findOne({ _id: patientId, role: 'patient' });
-        if (!patient) {
-            return res.status(404).json({
-                success: false,
-                message: 'Pasien tidak ditemukan'
+        // Cek apakah ada medical records
+        const medicalRecords = await MedicalRecord.find({ doctor: doctorId })
+            .populate({
+                path: 'patient',
+                select: 'name email profile'
+            })
+            .sort({ createdAt: -1 });
+        
+        console.log('Jumlah medical records ditemukan:', medicalRecords.length);
+        
+        if (medicalRecords.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: 'Belum ada medical records untuk dokter ini',
+                medicalRecords: []
             });
         }
-
-        const medicalRecords = await MedicalRecord.find({
-            doctor: req.user._id,
-            patient: patientId
-        })
-        .populate('patient', 'name email profile')
-        .sort({ createdAt: -1 });
-
+        
         res.status(200).json({
             success: true,
+            count: medicalRecords.length,
             medicalRecords
         });
+        
     } catch (error) {
+        console.error('Error pada getDoctorMedicalRecords:', error);
         res.status(500).json({
             success: false,
             message: 'Error mengambil data medical records',
             error: error.message
         });
+    }
+};
+
+exports.getPatientMedicalRecords = async (req, res) => {
+    try {
+      const { patientId } = req.params;
+      
+      // Log untuk debugging
+      console.log('Fetching records for:', {
+        patientId,
+        doctorId: req.user._id
+      });
+  
+      const medicalRecords = await MedicalRecord.find({
+        doctor: req.user._id,
+        patient: patientId
+      })
+      .populate('patient', 'name email profile')
+      .sort({ createdAt: -1 });
+  
+      console.log('Found records:', medicalRecords.length);
+  
+      res.status(200).json({
+        success: true,
+        medicalRecords
+      });
+    } catch (error) {
+      console.error('Error in getPatientMedicalRecords:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error mengambil data medical records',
+        error: error.message
+      });
     }
 };
 

@@ -11,6 +11,8 @@ router.use(roleMiddleware(['doctor']));
 // Rute manajemen pasien
 router.get('/patients', doctorController.getPatients);
 
+router.get('/medical-records', doctorController.getDoctorMedicalRecords);
+
 // Semua rute di bawah ini menggunakan ID pasien
 router.get('/patients/:patientId/history', doctorController.getPatientHistory);
 

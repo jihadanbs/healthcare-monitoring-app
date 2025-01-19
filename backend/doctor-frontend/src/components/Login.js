@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaUser, FaLock } from 'react-icons/fa';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,6 +26,7 @@ const Login = () => {
       if (response.ok) {
         setMessage('Login berhasil!');
         localStorage.setItem('token', data.token);
+        navigate('/dashboard');
       } else {
         setMessage(data.message || 'Login gagal');
       }
@@ -41,18 +44,44 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="space-y-6" autoComplete='off'>
           <div className="relative">
             <FaUser className="absolute left-4 top-3 text-gray-400" />
-            <input type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} required className="pl-12 pr-4 py-3 border rounded-xl w-full focus:ring-2 focus:ring-indigo-400 focus:border-transparent hover:border-indigo-300 transition"/>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="pl-12 pr-4 py-3 border rounded-xl w-full focus:ring-2 focus:ring-indigo-400 focus:border-transparent hover:border-indigo-300 transition"
+            />
           </div>
           <div className="relative">
             <FaLock className="absolute left-4 top-3 text-gray-400" />
-            <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required className="pl-12 pr-4 py-3 border rounded-xl w-full focus:ring-2 focus:ring-indigo-400 focus:border-transparent hover:border-indigo-300 transition"/>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="pl-12 pr-4 py-3 border rounded-xl w-full focus:ring-2 focus:ring-indigo-400 focus:border-transparent hover:border-indigo-300 transition"
+            />
           </div>
-          <button type="submit" disabled={loading} className={`w-full py-3 rounded-xl text-white transition duration-300 ${loading ? 'bg-gray-400' : 'bg-indigo-600 hover:bg-indigo-700'}`}>
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full py-3 rounded-xl text-white transition duration-300 ${
+              loading ? 'bg-gray-400' : 'bg-indigo-600 hover:bg-indigo-700'
+            }`}
+          >
             {loading ? 'Loading...' : 'Login'}
           </button>
         </form>
         {message && (
-          <p className={`mt-6 text-center ${message.includes('berhasil') ? 'text-green-600' : 'text-red-500'}`}>
+          <p
+            className={`mt-6 text-center ${
+              message.includes('berhasil') ? 'text-green-600' : 'text-red-500'
+            }`}
+          >
             {message}
           </p>
         )}
